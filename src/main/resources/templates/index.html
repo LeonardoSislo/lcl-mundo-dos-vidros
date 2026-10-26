@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>LCL Mundo dos Vidros</title>
+
+    <link
+        rel="stylesheet"
+        th:href="@{/css/style.css}">
+</head>
+
+<body>
+
+    <aside class="menu-lateral">
+        <div class="logo">
+            <h1>LCL</h1>
+            <p>Mundo dos Vidros</p>
+        </div>
+
+        <nav>
+            <a th:href="@{/}" class="ativo">Início</a>
+            <a th:href="@{/clientes}">Clientes</a>
+            <a href="#">Serviços</a>
+            <a href="#">Financeiro</a>
+        </nav>
+    </aside>
+
+    <main class="conteudo">
+        <header class="cabecalho">
+            <h2>Painel inicial</h2>
+            <p>Bem-vindo ao sistema LCL Mundo dos Vidros.</p>
+        </header>
+
+        <section class="indicadores">
+            <article class="cartao">
+                <span>Clientes cadastrados</span>
+                <strong>0</strong>
+            </article>
+
+            <article class="cartao">
+                <span>Serviços pendentes</span>
+                <strong>0</strong>
+            </article>
+
+            <article class="cartao">
+                <span>Serviços em andamento</span>
+                <strong>0</strong>
+            </article>
+
+            <article class="cartao">
+                <span>Serviços concluídos</span>
+                <strong>0</strong>
+            </article>
+        </section>
+
+        <section class="painel">
+            <h3>Serviços recentes</h3>
+
+            <div class="estado-vazio">
+                <p>Nenhum serviço cadastrado até o momento.</p>
+                <a href="#" class="botao">Cadastrar serviço</a>
+            </div>
+        </section>
+    </main>
+
+</body>
+</html>

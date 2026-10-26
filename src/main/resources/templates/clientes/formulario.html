@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title
+        th:text="${cliente.idCliente == null}
+            ? 'Novo cliente | LCL Mundo dos Vidros'
+            : 'Editar cliente | LCL Mundo dos Vidros'">
+        Cliente | LCL Mundo dos Vidros
+    </title>
+
+    <link
+        rel="stylesheet"
+        th:href="@{/css/style.css}">
+</head>
+
+<body>
+
+    <aside class="menu-lateral">
+        <div class="logo">
+            <h1>LCL</h1>
+            <p>Mundo dos Vidros</p>
+        </div>
+
+        <nav>
+            <a th:href="@{/}">Início</a>
+            <a th:href="@{/clientes}" class="ativo">Clientes</a>
+            <a href="#">Serviços</a>
+            <a href="#">Financeiro</a>
+        </nav>
+    </aside>
+
+    <main class="conteudo">
+
+        <header class="cabecalho">
+            <h2
+                th:text="${cliente.idCliente == null}
+                    ? 'Novo cliente'
+                    : 'Editar cliente'">
+                Cliente
+            </h2>
+
+            <p
+                th:text="${cliente.idCliente == null}
+                    ? 'Preencha os dados para cadastrar um cliente.'
+                    : 'Altere os dados do cliente selecionado.'">
+            </p>
+        </header>
+
+        <section class="painel painel-formulario">
+
+            <form
+                class="formulario"
+                th:action="@{/clientes/salvar}"
+                th:object="${cliente}"
+                method="post">
+
+                <input
+                    type="hidden"
+                    th:field="*{idCliente}">
+
+                <div
+                    class="campo campo-completo"
+                    th:if="${cliente.idCliente != null}">
+
+                    <label for="idClienteExibido">
+                        Código do cliente
+                    </label>
+
+                    <input
+                        id="idClienteExibido"
+                        type="text"
+                        th:value="${cliente.idCliente}"
+                        disabled>
+                </div>
+
+                <div class="campo campo-completo">
+                    <label for="nome">
+                        Nome <span class="obrigatorio">*</span>
+                    </label>
+
+                    <input
+                        id="nome"
+                        type="text"
+                        th:field="*{nome}"
+                        maxlength="255"
+                        placeholder="Digite o nome do cliente"
+                        required>
+
+                    <span
+                        class="mensagem-erro"
+                        th:if="${#fields.hasErrors('nome')}"
+                        th:errors="*{nome}">
+                    </span>
+                </div>
+
+                <div class="campo campo-completo">
+                    <label for="endereco">Endereço</label>
+
+                    <input
+                        id="endereco"
+                        type="text"
+                        th:field="*{endereco}"
+                        maxlength="255"
+                        placeholder="Digite o endereço">
+                </div>
+
+                <div class="campo">
+                    <label for="bairro">Bairro</label>
+
+                    <input
+                        id="bairro"
+                        type="text"
+                        th:field="*{bairro}"
+                        maxlength="255"
+                        placeholder="Digite o bairro">
+                </div>
+
+                <div class="campo">
+                    <label for="cidade">Cidade</label>
+
+                    <input
+                        id="cidade"
+                        type="text"
+                        th:field="*{cidade}"
+                        maxlength="255"
+                        placeholder="Digite a cidade">
+                </div>
+                
+
+                <div class="separador-formulario campo-completo">
+                        <h3>Informações de contato</h3>
+                        <p>Informe o telefone e o e-mail do cliente.</p>
+                    </div>
+
+                    <div class="campo">
+                        <label for="telefone">Telefone</label>
+
+                        <input
+                            id="telefone"
+                            type="tel"
+                            th:field="*{contato.telefone}"
+                            maxlength="20"
+                            placeholder="Ex.: (11) 99999-9999">
+
+                        <span
+                            class="mensagem-erro"
+                            th:if="${#fields.hasErrors('contato.telefone')}"
+                            th:errors="*{contato.telefone}">
+                        </span>
+                    </div>
+
+                    <div class="campo">
+                        <label for="email">E-mail</label>
+
+                        <input
+                            id="email"
+                            type="email"
+                            th:field="*{contato.email}"
+                            maxlength="255"
+                            placeholder="Ex.: cliente@email.com">
+
+                        <span
+                            class="mensagem-erro"
+                            th:if="${#fields.hasErrors('contato.email')}"
+                            th:errors="*{contato.email}">
+                        </span>
+                </div>
+
+                <div class="acoes-formulario campo-completo">
+                    <a
+                        class="botao botao-secundario"
+                        th:href="@{/clientes}">
+                        Cancelar
+                    </a>
+
+                    <button
+                        class="botao botao-salvar"
+                        type="submit"
+                        th:text="${cliente.idCliente == null}
+                            ? 'Salvar cliente'
+                            : 'Salvar alterações'">
+                        Salvar
+                    </button>
+                </div>
+
+            </form>
+
+        </section>
+
+    </main>
+
+</body>
+</html>

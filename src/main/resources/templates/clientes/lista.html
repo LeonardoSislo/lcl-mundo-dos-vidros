@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>Clientes | LCL Mundo dos Vidros</title>
+
+    <link
+        rel="stylesheet"
+        th:href="@{/css/style.css}">
+</head>
+
+<body>
+
+    <aside class="menu-lateral">
+        <div class="logo">
+            <h1>LCL</h1>
+            <p>Mundo dos Vidros</p>
+        </div>
+
+        <nav>
+            <a th:href="@{/}">Início</a>
+            <a th:href="@{/clientes}" class="ativo">Clientes</a>
+            <a href="#">Serviços</a>
+            <a href="#">Financeiro</a>
+        </nav>
+    </aside>
+
+    <main class="conteudo">
+
+        <div
+            class="alerta-sucesso"
+            th:if="${mensagem}"
+            th:text="${mensagem}">
+        </div>
+
+        <div
+            class="alerta-erro"
+            th:if="${mensagemErro}"
+            th:text="${mensagemErro}">
+        </div>
+
+        <header class="cabecalho cabecalho-lista">
+            <div>
+                <h2>Clientes</h2>
+                <p>Clientes registrados no sistema.</p>
+            </div>
+
+            <a th:href="@{/clientes/novo}" class="botao">
+                 Novo cliente
+            </a>
+        </header>
+
+        <section class="painel">
+
+        <div class="resumo-resultados">
+
+            <span
+                th:text="${#lists.size(clientes) == 1}
+                    ? '1 cliente encontrado'
+                    : ${#lists.size(clientes)} + ' clientes encontrados'">
+            </span>
+
+            <span
+                th:if="${nomePesquisado != null
+                    and !nomePesquisado.isBlank()}">
+
+                para
+                "<strong th:text="${nomePesquisado}"></strong>"
+            </span>
+
+        </div>
+
+            <div
+                    class="estado-vazio"
+                    th:if="${#lists.isEmpty(clientes)}">
+
+                <p
+                    th:if="${nomePesquisado == null
+                        or nomePesquisado.isBlank()}">
+                    Nenhum cliente cadastrado.
+                </p>
+
+                <p
+                    th:unless="${nomePesquisado == null
+                        or nomePesquisado.isBlank()}">
+
+                    Nenhum cliente encontrado para
+                    "<strong th:text="${nomePesquisado}"></strong>".
+                </p>
+
+                <a
+                    class="botao botao-secundario"
+                    th:if="${nomePesquisado != null
+                        and !nomePesquisado.isBlank()}"
+                    th:href="@{/clientes}">
+                    Limpar pesquisa
+                </a>
+
+             </div>
+
+
+             <section class="painel painel-filtros">
+
+                <form
+                    class="formulario-pesquisa"
+                    th:action="@{/clientes}"
+                    method="get">
+
+                    <div class="campo-pesquisa">
+                        <label for="nome">Pesquisar cliente</label>
+
+                        <input
+                            id="nome"
+                            type="search"
+                            name="nome"
+                            th:value="${nomePesquisado}"
+                            placeholder="Digite uma parte do nome"
+                            autocomplete="off">
+                    </div>
+
+                    <div class="campo-ordenacao">
+                        <label for="ordem">Ordenar por nome</label>
+
+                        <select
+                                id="ordem"
+                                name="ordem"
+                                onchange="this.form.submit()">
+
+                            <option
+                                value="asc"
+                                th:selected="${ordemSelecionada == 'asc'}">
+                                A até Z
+                            </option>
+
+                            <option
+                                value="desc"
+                                th:selected="${ordemSelecionada == 'desc'}">
+                                Z até A
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="acoes-pesquisa">
+
+                        <button
+                            class="botao botao-pesquisar"
+                            type="submit">
+                            Pesquisar
+                        </button>
+
+                        <a
+                            class="botao botao-limpar"
+                            th:href="@{/clientes}">
+                            Limpar
+                        </a>
+
+                    </div>
+
+                </form>
+
+</section>
+
+            <div
+                class="tabela-responsiva"
+                th:unless="${#lists.isEmpty(clientes)}">
+
+                <table class="tabela">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nome</th>
+                            <th>Telefone</th>
+                            <th>E-mail</th>
+                            <th>Endereço</th>
+                            <th>Bairro</th>
+                            <th>Cidade</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+
+                   <tbody>
+                        <tr th:each="cliente : ${clientes}">
+                            <td th:text="${cliente.idCliente}"></td>
+                            <td th:text="${cliente.nome}"></td>
+
+                            <td
+                                th:text="${cliente.contato != null
+                                    and cliente.contato.telefone != null
+                                    and !cliente.contato.telefone.isBlank()
+                                    ? cliente.contato.telefone
+                                    : '-'}">
+                            </td>
+
+                            <td
+                                th:text="${cliente.contato != null
+                                    and cliente.contato.email != null
+                                    and !cliente.contato.email.isBlank()
+                                    ? cliente.contato.email
+                                    : '-'}">
+                            </td>
+
+                            <td th:text="${cliente.endereco ?: '-'}"></td>
+                            <td th:text="${cliente.bairro ?: '-'}"></td>
+                            <td th:text="${cliente.cidade ?: '-'}"></td>
+
+                                <td class="acoes-tabela">
+
+                                    <div class="grupo-acoes">
+
+                                        <a
+                                            class="botao-editar"
+                                            th:href="@{/clientes/{id}/editar(
+                                                id=${cliente.idCliente}
+                                            )}">
+                                            Editar
+                                        </a>
+
+                                        <button
+                                            class="botao-excluir"
+                                            type="button"
+                                            th:attr="
+                                                data-id=${cliente.idCliente},
+                                                data-nome=${cliente.nome}"
+                                            onclick="abrirConfirmacaoExclusao(this)">
+                                            Excluir
+                                        </button>
+
+                                    </div>
+
+                                </td>
+                        </tr>
+                    </tbody>
+
+                </table>
+
+            </div>
+        </section>
+
+    </main>
+
+    <div
+    id="modalExclusao"
+    class="modal"
+    aria-hidden="true">
+
+    <div class="modal-conteudo">
+
+        <h3>Excluir cliente</h3>
+
+        <p>
+            Deseja realmente excluir
+            <strong id="nomeClienteExclusao"></strong>?
+        </p>
+
+        <p class="aviso-exclusao">
+            O contato vinculado ao cliente também será excluído.
+            Essa operação não poderá ser desfeita.
+        </p>
+
+        <form
+            id="formExclusao"
+            th:action="@{/clientes/excluir}"
+            method="post">
+
+            <input
+                id="idClienteExclusao"
+                type="hidden"
+                name="id">
+
+            <div class="acoes-modal">
+
+                <button
+                    class="botao botao-secundario"
+                    type="button"
+                    onclick="fecharConfirmacaoExclusao()">
+                    Cancelar
+                </button>
+
+                <button
+                    class="botao botao-confirmar-exclusao"
+                    type="submit">
+                    Sim, excluir
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<script>
+    function abrirConfirmacaoExclusao(botao) {
+        const idCliente = botao.dataset.id;
+        const nomeCliente = botao.dataset.nome;
+
+        document.getElementById("idClienteExclusao").value = idCliente;
+        document.getElementById("nomeClienteExclusao").textContent =
+            '"' + nomeCliente + '"';
+
+        const modal = document.getElementById("modalExclusao");
+
+        modal.classList.add("modal-visivel");
+        modal.setAttribute("aria-hidden", "false");
+    }
+
+    function fecharConfirmacaoExclusao() {
+        const modal = document.getElementById("modalExclusao");
+
+        modal.classList.remove("modal-visivel");
+        modal.setAttribute("aria-hidden", "true");
+
+        document.getElementById("idClienteExclusao").value = "";
+        document.getElementById("nomeClienteExclusao").textContent = "";
+    }
+
+    document
+        .getElementById("modalExclusao")
+        .addEventListener("click", function (evento) {
+            if (evento.target === this) {
+                fecharConfirmacaoExclusao();
+            }
+        });
+
+    document.addEventListener("keydown", function (evento) {
+        if (evento.key === "Escape") {
+            fecharConfirmacaoExclusao();
+        }
+    });
+</script>
+
+</body>
+</html>
