@@ -1,24 +1,21 @@
 package br.com.lcl.lclmundodosvidros.controller;
 
+import java.util.List;
+
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import br.com.lcl.lclmundodosvidros.model.Cliente;
+import br.com.lcl.lclmundodosvidros.model.Contato;
 import br.com.lcl.lclmundodosvidros.repository.ClienteRepository;
 import jakarta.validation.Valid;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.web.bind.annotation.RequestParam;
-
-import br.com.lcl.lclmundodosvidros.model.Contato;
-
-import java.util.List;
-
-
 
 @Controller
 public class ClienteController {
@@ -30,206 +27,200 @@ public class ClienteController {
     }
 
     @GetMapping("/clientes")
-        public String listarClientes(
-                @RequestParam(
-                        name = "nome",
-                        required = false,
-                        defaultValue = ""
-                ) String nome,
-                @RequestParam(
-                        name = "ordem",
-                        required = false,
-                        defaultValue = "asc"
-                ) String ordem,
-                Model model) {
+    public String listarClientes(
+            @RequestParam(defaultValue = "") String nome,
+            @RequestParam(defaultValue = "asc") String ordem,
+            Model model) {
 
-            String nomePesquisado = nome.trim();
-            boolean ordemDecrescente = "desc".equalsIgnoreCase(ordem);
+        String pesquisa = nome.trim();
+        List<Cliente> clientes;
 
-            List<Cliente> clientes;
-
-            if (nomePesquisado.isBlank()) {
-
-                if (ordemDecrescente) {
-                    clientes = clienteRepository.findAllByOrderByNomeDesc();
-                } else {
-                    clientes = clienteRepository.findAllByOrderByNomeAsc();
-                }
-
-            } else {
-
-                if (ordemDecrescente) {
-                    clientes =
-                            clienteRepository
-                                    .findByNomeContainingIgnoreCaseOrderByNomeDesc(
-                                            nomePesquisado
-                                    );
-                } else {
-                    clientes =
-                            clienteRepository
-                                    .findByNomeContainingIgnoreCaseOrderByNomeAsc(
-                                            nomePesquisado
-                                    );
-                }
-            }
-
-            model.addAttribute("clientes", clientes);
-            model.addAttribute("nomePesquisado", nomePesquisado);
-            model.addAttribute(
-                    "ordemSelecionada",
-                    ordemDecrescente ? "desc" : "asc"
-            );
-
-            return "clientes/lista";
+        if (pesquisa.isEmpty()) {
+            clientes = ordem.equalsIgnoreCase("desc")
+                    ? clienteRepository.findAllByOrderByNomeDesc()
+                    : clienteRepository.findAllByOrderByNomeAsc();
+        } else {
+            clientes = ordem.equalsIgnoreCase("desc")
+                    ? clienteRepository
+                            .findByNomeContainingIgnoreCaseOrderByNomeDesc(pesquisa)
+                    : clienteRepository
+                            .findByNomeContainingIgnoreCaseOrderByNomeAsc(pesquisa);
         }
 
-    @GetMapping("/clientes/novo")
-    public String abrirFormulario(Model model) {
-    Cliente cliente = new Cliente();
-    cliente.setContato(new Contato());
+        model.addAttribute("clientes", clientes);
+        model.addAttribute("nomePesquisado", pesquisa);
+        model.addAttribute(
+                "ordemSelecionada",
+                ordem.equalsIgnoreCase("desc") ? "desc" : "asc"
+        );
 
-    model.addAttribute("cliente", cliente);
-
-    return "clientes/formulario";
+        return "clientes/lista";
     }
 
+    @GetMapping("/clientes/novo")
+    public String novoCliente(Model model) {
+        Cliente cliente = new Cliente();
+        cliente.setContato(new Contato());
 
+        model.addAttribute("cliente", cliente);
 
-    @GetMapping("/clientes/{id}/editar")
-    public String editarCliente(
-        @PathVariable Integer id,
-        Model model,
-        RedirectAttributes atributos) {
-
-    return clienteRepository.findById(id)
-            .map(cliente -> {
-
-                if (cliente.getContato() == null) {
-                    cliente.setContato(new Contato());
-                }
-
-                model.addAttribute("cliente", cliente);
-
-                return "clientes/formulario";
-            })
-            .orElseGet(() -> {
-                atributos.addFlashAttribute(
-                        "mensagemErro",
-                        "Cliente não encontrado.");
-
-                return "redirect:/clientes";
-            });
-}
-
-    @PostMapping("/clientes/salvar")
-public String salvarCliente(
-        @Valid Cliente cliente,
-        BindingResult resultado,
-        RedirectAttributes atributos) {
-
-    if (resultado.hasErrors()) {
         return "clientes/formulario";
     }
 
-    boolean alteracao = cliente.getIdCliente() != null;
+    @GetMapping("/clientes/{id}/editar")
+    public String editarCliente(
+            @PathVariable Integer id,
+            Model model,
+            RedirectAttributes redirectAttributes) {
 
-    if (alteracao) {
-        Cliente clienteExistente = clienteRepository
-                .findById(cliente.getIdCliente())
-                .orElse(null);
+        Cliente cliente = clienteRepository.findById(id).orElse(null);
 
-        if (clienteExistente == null) {
-            atributos.addFlashAttribute(
+        if (cliente == null) {
+            redirectAttributes.addFlashAttribute(
                     "mensagemErro",
-                    "Cliente não encontrado.");
+                    "Cliente não encontrado."
+            );
 
             return "redirect:/clientes";
         }
 
-        clienteExistente.setNome(cliente.getNome());
-        clienteExistente.setEndereco(cliente.getEndereco());
-        clienteExistente.setBairro(cliente.getBairro());
-        clienteExistente.setCidade(cliente.getCidade());
+        if (cliente.getContato() == null) {
+            cliente.setContato(new Contato());
+        }
 
-        atualizarContato(clienteExistente, cliente.getContato());
+        model.addAttribute("cliente", cliente);
 
-        clienteRepository.save(clienteExistente);
-
-        atributos.addFlashAttribute(
-                "mensagem",
-                "Cliente e contato atualizados com sucesso.");
-
-    } else {
-        prepararContato(cliente);
-
-        clienteRepository.save(cliente);
-
-        atributos.addFlashAttribute(
-                "mensagem",
-                "Cliente e contato cadastrados com sucesso.");
+        return "clientes/formulario";
     }
 
-    return "redirect:/clientes";
-}
+    @PostMapping("/clientes/salvar")
+    public String salvarCliente(
+            @Valid Cliente cliente,
+            BindingResult resultado,
+            RedirectAttributes redirectAttributes) {
 
-@PostMapping("/clientes/excluir")
-public String excluirCliente(
-        @RequestParam Integer id,
-        RedirectAttributes atributos) {
+        if (resultado.hasErrors()) {
+            return "clientes/formulario";
+        }
 
-    Cliente cliente = clienteRepository.findById(id).orElse(null);
+        if (cliente.getIdCliente() == null) {
+            cadastrarCliente(cliente, redirectAttributes);
+        } else {
+            boolean atualizado = atualizarCliente(cliente, redirectAttributes);
 
-    if (cliente == null) {
-        atributos.addFlashAttribute(
-                "mensagemErro",
-                "Cliente não encontrado.");
+            if (!atualizado) {
+                return "redirect:/clientes";
+            }
+        }
 
         return "redirect:/clientes";
     }
 
-    try {
-        clienteRepository.delete(cliente);
-        clienteRepository.flush();
+    @PostMapping("/clientes/excluir")
+    public String excluirCliente(
+            @RequestParam Integer id,
+            RedirectAttributes redirectAttributes) {
 
-        atributos.addFlashAttribute(
+        Cliente cliente = clienteRepository.findById(id).orElse(null);
+
+        if (cliente == null) {
+            redirectAttributes.addFlashAttribute(
+                    "mensagemErro",
+                    "Cliente não encontrado."
+            );
+
+            return "redirect:/clientes";
+        }
+
+        try {
+            clienteRepository.delete(cliente);
+            clienteRepository.flush();
+
+            redirectAttributes.addFlashAttribute(
+                    "mensagem",
+                    "Cliente e contato excluídos com sucesso."
+            );
+        } catch (DataIntegrityViolationException exception) {
+            redirectAttributes.addFlashAttribute(
+                    "mensagemErro",
+                    "Não foi possível excluir o cliente porque existem "
+                            + "serviços vinculados a esse cadastro."
+            );
+        }
+
+        return "redirect:/clientes";
+    }
+
+    private void cadastrarCliente(
+            Cliente cliente,
+            RedirectAttributes redirectAttributes) {
+
+        vincularContato(cliente);
+        clienteRepository.save(cliente);
+
+        redirectAttributes.addFlashAttribute(
                 "mensagem",
-                "Cliente e contato excluídos com sucesso.");
-
-    } catch (DataIntegrityViolationException exception) {
-        atributos.addFlashAttribute(
-                "mensagemErro",
-                "Não foi possível excluir o cliente porque existem "
-                        + "serviços vinculados a esse cadastro.");
+                "Cliente e contato cadastrados com sucesso."
+        );
     }
 
-    return "redirect:/clientes";
-}
+    private boolean atualizarCliente(
+            Cliente dadosFormulario,
+            RedirectAttributes redirectAttributes) {
 
-private void prepararContato(Cliente cliente) {
-    Contato contato = cliente.getContato();
+        Cliente clienteSalvo = clienteRepository
+                .findById(dadosFormulario.getIdCliente())
+                .orElse(null);
 
-    if (contato != null) {
-        contato.setCliente(cliente);
+        if (clienteSalvo == null) {
+            redirectAttributes.addFlashAttribute(
+                    "mensagemErro",
+                    "Cliente não encontrado."
+            );
+
+            return false;
+        }
+
+        clienteSalvo.setNome(dadosFormulario.getNome());
+        clienteSalvo.setEndereco(dadosFormulario.getEndereco());
+        clienteSalvo.setBairro(dadosFormulario.getBairro());
+        clienteSalvo.setCidade(dadosFormulario.getCidade());
+
+        atualizarContato(clienteSalvo, dadosFormulario.getContato());
+
+        clienteRepository.save(clienteSalvo);
+
+        redirectAttributes.addFlashAttribute(
+                "mensagem",
+                "Cliente e contato atualizados com sucesso."
+        );
+
+        return true;
     }
-}
+
+    private void vincularContato(Cliente cliente) {
+        if (cliente.getContato() != null) {
+            cliente.getContato().setCliente(cliente);
+        }
+    }
 
     private void atualizarContato(
-        Cliente clienteExistente,
-        Contato contatoFormulario) {
+            Cliente clienteSalvo,
+            Contato dadosContato) {
 
-    if (contatoFormulario == null) {
-        return;
+        if (dadosContato == null) {
+            return;
+        }
+
+        Contato contatoSalvo = clienteSalvo.getContato();
+
+        if (contatoSalvo == null) {
+            contatoSalvo = new Contato();
+            clienteSalvo.setContato(contatoSalvo);
+        }
+
+        contatoSalvo.setTelefone(dadosContato.getTelefone());
+        contatoSalvo.setEmail(dadosContato.getEmail());
+        contatoSalvo.setCliente(clienteSalvo);
     }
-
-    Contato contatoExistente = clienteExistente.getContato();
-
-    if (contatoExistente == null) {
-        contatoExistente = new Contato();
-        clienteExistente.setContato(contatoExistente);
-    }
-
-    contatoExistente.setTelefone(contatoFormulario.getTelefone());
-    contatoExistente.setEmail(contatoFormulario.getEmail());
-    contatoExistente.setCliente(clienteExistente);
-}
 }

@@ -44,6 +44,8 @@ public class Cliente {
                 cascade = CascadeType.ALL,
                 orphanRemoval = true
             )
+
+            
             private Contato contato;
 
     public Cliente() {
