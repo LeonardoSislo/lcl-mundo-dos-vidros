@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>Serviços | LCL Mundo dos Vidros</title>
+
+    <link
+        rel="stylesheet"
+        th:href="@{/css/style.css}">
+</head>
+
+<body>
+
+    <aside class="menu-lateral">
+
+        <div class="logo">
+            <img
+                class="logo-imagem"
+                th:src="@{/img/logo-lcl.png}"
+                alt="Logo LCL Mundo dos Vidros">
+        </div>
+
+        <nav>
+            <a th:href="@{/}">Início</a>
+            <a th:href="@{/clientes}">Clientes</a>
+            <a th:href="@{/servicos}" class="ativo">Serviços</a>
+            <a href="#">Financeiro</a>
+        </nav>
+
+    </aside>
+
+    <main class="conteudo">
+
+        <div
+            class="alerta-sucesso"
+            th:if="${mensagem}"
+            th:text="${mensagem}">
+        </div>
+
+        <div
+            class="alerta-erro"
+            th:if="${mensagemErro}"
+            th:text="${mensagemErro}">
+        </div>
+
+        <header class="cabecalho cabecalho-lista">
+
+            <div>
+                <h2>Serviços</h2>
+                <p>Consulte e gerencie os serviços cadastrados.</p>
+            </div>
+
+            <a href="#" class="botao">
+                Novo serviço
+            </a>
+
+        </header>
+
+        <section class="indicadores indicadores-servicos">
+
+            <article class="cartao">
+                <span>Pendentes</span>
+
+                <strong
+                    th:text="${quantidadePendentes}">
+                    0
+                </strong>
+            </article>
+
+            <article class="cartao">
+                <span>Em andamento</span>
+
+                <strong
+                    th:text="${quantidadeEmAndamento}">
+                    0
+                </strong>
+            </article>
+
+            <article class="cartao">
+                <span>Concluídos</span>
+
+                <strong
+                    th:text="${quantidadeConcluidos}">
+                    0
+                </strong>
+            </article>
+
+        </section>
+
+        <section class="painel">
+
+            <div
+                class="estado-vazio"
+                th:if="${#lists.isEmpty(servicos)}">
+
+                <p>Nenhum serviço cadastrado até o momento.</p>
+            </div>
+
+            <div
+                class="tabela-responsiva"
+                th:unless="${#lists.isEmpty(servicos)}">
+
+                <table class="tabela">
+
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Cliente</th>
+                            <th>Tipo</th>
+                            <th>Status</th>
+                            <th>Venda</th>
+                            <th>Orçamento</th>
+                            <th>Instalação</th>
+                            <th>Valor cobrado</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        <tr th:each="servico : ${servicos}">
+
+                            <td th:text="${servico.idServico}">
+                            </td>
+
+                            <td
+                                th:text="${servico.cliente != null
+                                    ? servico.cliente.nome
+                                    : '-'}">
+                            </td>
+
+                            <td
+                                th:text="${servico.tipoDeServico != null
+                                    ? servico.tipoDeServico.tipo
+                                    : '-'}">
+                            </td>
+
+                            <td
+                                th:text="${servico.statusServico != null
+                                    and !servico.statusServico.isBlank()
+                                    ? servico.statusServico
+                                    : '-'}">
+                            </td>
+
+                            <td
+                                th:text="${servico.dataVenda != null
+                                    ? #temporals.format(
+                                        servico.dataVenda,
+                                        'dd/MM/yyyy'
+                                      )
+                                    : '-'}">
+                            </td>
+
+                            <td
+                                th:text="${servico.dataOrcamento != null
+                                    ? #temporals.format(
+                                        servico.dataOrcamento,
+                                        'dd/MM/yyyy'
+                                      )
+                                    : '-'}">
+                            </td>
+
+                            <td
+                                th:text="${servico.dataInstalacao != null
+                                    ? #temporals.format(
+                                        servico.dataInstalacao,
+                                        'dd/MM/yyyy'
+                                      )
+                                    : '-'}">
+                            </td>
+
+                            <td
+                                th:text="${servico.valorCobrado != null
+                                    ? 'R$ ' + #numbers.formatDecimal(
+                                        servico.valorCobrado,
+                                        1,
+                                        'POINT',
+                                        2,
+                                        'COMMA'
+                                      )
+                                    : '-'}">
+                            </td>
+
+                            <td class="acoes-tabela">
+
+                                <a
+                                    href="#"
+                                    class="botao-editar">
+                                    Editar
+                                </a>
+
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</body>
+</html>
