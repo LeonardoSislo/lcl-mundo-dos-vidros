@@ -11,6 +11,8 @@ import jakarta.validation.constraints.Size;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.OneToOne;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Pattern;
+
 
 @Entity
 @Table(name = "cliente")
@@ -22,31 +24,33 @@ public class Cliente {
     private Integer idCliente;
 
     @NotBlank(message = "O nome do cliente é obrigatório.")
-    @Size(max = 255, message = "O nome deve ter no máximo 255 caracteres.")
+    @Size(min = 3, max = 255, message = "O nome deve ter entre 3 e 255 caracteres.")
+    @Pattern(regexp = "^[A-Za-zÀ-ÿ\\s]+$", message = "Nome deve conter apenas letras")
     @Column(name = "nome", nullable = false, length = 255)
     private String nome;
 
-    @Size(max = 255, message = "O endereço deve ter no máximo 255 caracteres.")
+    @NotBlank(message = "O endereço é obrigatório.")
+    @Size(min = 5, max = 255, message = "O endereço deve ter entre 5 e 255 caracteres.")
     @Column(name = "endereco", length = 255)
     private String endereco;
 
-    @Size(max = 255, message = "O bairro deve ter no máximo 255 caracteres.")
+    @NotBlank(message = "O bairro é obrigatório.")
+    @Size(min = 3, max = 255, message = "O bairro deve ter entre 3 e 255 caracteres.")
     @Column(name = "bairro", length = 255)
     private String bairro;
 
-    @Size(max = 255, message = "A cidade deve ter no máximo 255 caracteres.")
+    @NotBlank(message = "A cidade é obrigatória.")
+    @Pattern(regexp = "^[A-Za-zÀ-ÿ\\s]+$", message = "A cidade deve conter apenas letras.")
     @Column(name = "cidade", length = 255)
     private String cidade;
 
-                @Valid
+            @Valid
             @OneToOne(
                 mappedBy = "cliente",
                 cascade = CascadeType.ALL,
                 orphanRemoval = true
             )
-
-            
-            private Contato contato;
+    private Contato contato;
 
     public Cliente() {
     }

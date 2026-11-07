@@ -10,6 +10,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 @Entity
@@ -21,18 +23,14 @@ public class Contato {
     @Column(name = "id_contato")
     private Integer idContato;
 
-    @Size(
-        max = 20,
-        message = "O telefone deve ter no máximo 20 caracteres."
-    )
+    @NotBlank(message = "O telefone é obrigatório.")
+    @Pattern( regexp = "^[0-9]{10,11}$", message = "Telefone deve conter apenas números. EX 11999999999")
     @Column(name = "telefone", length = 20)
     private String telefone;
 
+    @NotBlank(message = "O e-mail é obrigatório.")
     @Email(message = "Informe um e-mail válido.")
-    @Size(
-        max = 255,
-        message = "O e-mail deve ter no máximo 255 caracteres."
-    )
+    @Size(max = 255, message = "O e-mail deve ter no máximo 255 caracteres.")
     @Column(name = "email", length = 255)
     private String email;
 

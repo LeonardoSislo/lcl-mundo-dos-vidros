@@ -90,8 +90,10 @@
                         id="nome"
                         type="text"
                         th:field="*{nome}"
+                        minlength="3"
                         maxlength="255"
-                        placeholder="Digite o nome do cliente"
+                        pattern="[A-Za-zÀ-ÿ\s]+"
+                        placeholder="Digite o nome completo do cliente"
                         required>
 
                     <span
@@ -108,8 +110,15 @@
                         id="endereco"
                         type="text"
                         th:field="*{endereco}"
+                        minlength="5"
                         maxlength="255"
-                        placeholder="Digite o endereço">
+                        placeholder="Digite o endereço"
+                        required>
+                    <span
+                        class="mensagem-erro"
+                        th:if="${#fields.hasErrors('endereco')}"
+                        th:errors="*{endereco}">
+                    </span>
                 </div>
 
                 <div class="campo">
@@ -119,8 +128,15 @@
                         id="bairro"
                         type="text"
                         th:field="*{bairro}"
+                        minlength="3"
                         maxlength="255"
-                        placeholder="Digite o bairro">
+                        placeholder="Digite o bairro"
+                        required>
+                    <span
+                        class="mensagem-erro"
+                        th:if="${#fields.hasErrors('bairro')}"
+                        th:errors="*{bairro}">
+                    </span>
                 </div>
 
                 <div class="campo">
@@ -130,8 +146,16 @@
                         id="cidade"
                         type="text"
                         th:field="*{cidade}"
+                        minlength="3"
                         maxlength="255"
-                        placeholder="Digite a cidade">
+                        pattern="[A-Za-zÀ-ÿ\s]+"
+                        placeholder="Digite a cidade"
+                        required>
+                    <span
+                        class="mensagem-erro"
+                        th:if="${#fields.hasErrors('cidade')}"
+                        th:errors="*{cidade}">
+                    </span>
                 </div>
                 
 
@@ -148,7 +172,9 @@
                             type="tel"
                             th:field="*{contato.telefone}"
                             maxlength="20"
-                            placeholder="Ex.: (11) 99999-9999">
+                            pattern="^[0-9()\- ]+"
+                            placeholder="Ex.: 11999999999"
+                            required>
 
                         <span
                             class="mensagem-erro"
@@ -165,7 +191,8 @@
                             type="email"
                             th:field="*{contato.email}"
                             maxlength="255"
-                            placeholder="Ex.: cliente@email.com">
+                            placeholder="Ex.: cliente@email.com"
+                            required>
 
                         <span
                             class="mensagem-erro"
@@ -173,6 +200,15 @@
                             th:errors="*{contato.email}">
                         </span>
                 </div>
+
+                <div
+                    class="mensagem-erro-geral"
+                    th:if="${#fields.hasAnyErrors()}">
+
+                    <p>Corrija os campos abaixo antes de continuar.</p>
+
+                </div>
+
 
                 <div class="acoes-formulario campo-completo">
                     <a
