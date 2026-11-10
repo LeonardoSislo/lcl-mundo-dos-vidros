@@ -49,6 +49,9 @@
             th:action="@{/servicos/salvar}"
             th:object="${servico}"
             method="post">
+            <input
+                type="hidden"
+                th:field="*{idServico}">
 
             <div class="campo">
 

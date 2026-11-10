@@ -190,11 +190,34 @@
 
                             <td class="acoes-tabela">
 
-                                <a
-                                    href="#"
-                                    class="botao-editar">
-                                    Editar
-                                </a>
+                                <div class="grupo-acoes">
+
+                                    <a
+                                        class="botao-editar"
+                                        th:href="@{/servicos/{id}/editar(id=${servico.idServico})}">
+                                        Editar
+                                    </a>
+
+                                    <form
+                                        th:action="@{/servicos/excluir}"
+                                        method="post">
+
+                                        <input
+                                            type="hidden"
+                                            name="id"
+                                            th:value="${servico.idServico}">
+
+                                        <button
+                                            type="submit"
+                                            class="botao-excluir">
+
+                                            Excluir
+
+                                        </button>
+
+                                    </form>
+
+                                </div>
 
                             </td>
 

@@ -13,6 +13,11 @@ import br.com.lcl.lclmundodosvidros.repository.ServicoRepository;
 import br.com.lcl.lclmundodosvidros.repository.TipoDeServicoRepository;
 import jakarta.validation.Valid;
 
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 @Controller
 public class ServicoController {
 
@@ -93,4 +98,65 @@ public class ServicoController {
 
         return "redirect:/servicos";
     }
+
+    @GetMapping("/servicos/{id}/editar")
+        public String editarServico(
+                @PathVariable Integer id,
+                Model model,
+                RedirectAttributes redirectAttributes) {
+
+        Servico servico = servicoRepository
+                .findById(id)
+                .orElse(null);
+
+        if (servico == null) {
+
+                redirectAttributes.addFlashAttribute(
+                        "mensagemErro",
+                        "Serviço não encontrado.");
+
+                return "redirect:/servicos";
+        }
+
+        model.addAttribute(
+                "servico",
+                servico);
+
+        model.addAttribute(
+                "clientes",
+                clienteRepository.findAll());
+
+        model.addAttribute(
+                "tipos",
+                tipoDeServicoRepository.findAllByOrderByTipoAsc());
+
+        return "servicos/formulario";
+        }
+
+        @PostMapping("/servicos/excluir")
+        public String excluirServico(
+                @RequestParam Integer id,
+                RedirectAttributes redirectAttributes) {
+
+        Servico servico = servicoRepository
+                .findById(id)
+                .orElse(null);
+
+        if (servico == null) {
+
+                redirectAttributes.addFlashAttribute(
+                        "mensagemErro",
+                        "Serviço não encontrado.");
+
+                return "redirect:/servicos";
+        }
+
+        servicoRepository.delete(servico);
+
+        redirectAttributes.addFlashAttribute(
+                "mensagem",
+                "Serviço excluído com sucesso.");
+
+        return "redirect:/servicos";
+        }
 }
