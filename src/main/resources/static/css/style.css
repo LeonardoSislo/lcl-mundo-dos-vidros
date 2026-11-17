@@ -1163,3 +1163,239 @@ nav a.ativo {
         background: white;
     }
 }
+
+
+
+
+
+.home-grid {
+    display: grid;
+    grid-template-columns:
+        minmax(300px, 0.85fr)
+        minmax(560px, 1.65fr);
+    gap: 24px;
+    align-items: start;
+    margin-top: 30px;
+}
+
+.resumo-mensal,
+.painel-servicos-recentes {
+    margin-top: 0;
+}
+
+.titulo-resumo,
+.cabecalho-servicos-recentes {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.rotulo-resumo {
+    color: #64748b;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.titulo-resumo h3,
+.cabecalho-servicos-recentes h3 {
+    margin-top: 5px;
+    color: #172033;
+    font-size: 20px;
+}
+
+.cabecalho-servicos-recentes p {
+    margin-top: 6px;
+    color: #64748b;
+    font-size: 13px;
+}
+
+.link-consultar {
+    color: #167979;
+    font-size: 13px;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.link-consultar:hover {
+    color: #10202a;
+    text-decoration: underline;
+}
+
+
+.cartao-faturamento {
+    margin-top: 22px;
+    padding: 24px;
+    border-radius: 15px;
+    background: linear-gradient(
+        135deg,
+        #35c2c1,
+        #28a9a8
+    );
+    color: #10202a;
+    box-shadow: 0 10px 24px rgba(53, 194, 193, 0.22);
+}
+
+.cartao-faturamento > span {
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.cartao-faturamento > strong {
+    display: block;
+    margin-top: 13px;
+    font-size: clamp(27px, 3vw, 42px);
+    line-height: 1.1;
+}
+
+.rodape-faturamento {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    margin-top: 24px;
+    font-size: 12px;
+}
+
+/* Contadores */
+
+.resumo-status {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-top: 16px;
+}
+
+.item-status {
+    display: block;
+    padding: 14px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    background-color: #f8fafc;
+    color: inherit;
+    text-decoration: none;
+    transition:
+        border-color 0.2s,
+        background-color 0.2s,
+        transform 0.2s;
+}
+
+.item-status:hover {
+    border-color: #35c2c1;
+    background-color: #f0fdfa;
+    transform: translateY(-2px);
+}
+
+.item-status span {
+    display: block;
+    color: #64748b;
+    font-size: 12px;
+}
+
+.item-status strong {
+    display: block;
+    margin-top: 7px;
+    color: #172033;
+    font-size: 21px;
+}
+
+
+.lista-servicos-home {
+    margin-top: 18px;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.cabecalho-lista-home,
+.servico-home {
+    display: grid;
+    grid-template-columns:
+        minmax(190px, 1.7fr)
+        minmax(90px, 0.75fr)
+        minmax(120px, 0.9fr)
+        minmax(115px, 0.8fr);
+    gap: 14px;
+    align-items: center;
+}
+
+.cabecalho-lista-home {
+    padding: 11px 16px;
+    background-color: #35c2c1;
+    color: #10202a;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.cabecalho-lista-home span:nth-child(n + 2) {
+    text-align: right;
+}
+
+.servico-home {
+    padding: 15px 16px;
+    border-bottom: 1px solid #e2e8f0;
+    color: #172033;
+    text-decoration: none;
+    transition: background-color 0.2s;
+}
+
+.servico-home:last-child {
+    border-bottom: 0;
+}
+
+.servico-home:hover {
+    background-color: #f8fafc;
+}
+
+.servico-home strong {
+    display: block;
+    font-size: 13px;
+}
+
+.servico-home span:not(.status-servico) {
+    display: block;
+    margin-top: 4px;
+    color: #64748b;
+    font-size: 11px;
+}
+
+.servico-home-data,
+.servico-home-valor,
+.servico-home-status {
+    text-align: right;
+}
+
+
+@media (max-width: 1150px) {
+    .home-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 750px) {
+    .cabecalho-lista-home {
+        display: none;
+    }
+
+    .servico-home {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .servico-home-data,
+    .servico-home-valor,
+    .servico-home-status {
+        text-align: left;
+    }
+}
+
+@media (max-width: 500px) {
+    .resumo-status,
+    .servico-home {
+        grid-template-columns: 1fr;
+    }
+
+    .rodape-faturamento,
+    .titulo-resumo,
+    .cabecalho-servicos-recentes {
+        flex-direction: column;
+    }
+}

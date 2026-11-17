@@ -13,5 +13,9 @@ public interface ServicoRepository
 
     List<Servico> findAllByOrderByIdServicoDesc();
 
-    long countByStatusServicoIgnoreCase(String statusServico);
+    List<Servico> findTop6ByOrderByIdServicoDesc();
+
+    long countByStatusServicoIgnoreCase(
+            String statusServico
+    );
 }

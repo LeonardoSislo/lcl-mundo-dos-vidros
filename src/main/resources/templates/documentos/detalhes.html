@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Consultar documento</title>
+</head>
+
+<body>
+
+    <h1 th:text="${documento.tipo.descricao}">
+        Documento
+    </h1>
+
+    <p>
+        Número:
+        <strong th:text="${documento.numero}">
+        </strong>
+    </p>
+
+    <p>
+        Cliente:
+        <strong th:text="${documento.nomeCliente}">
+        </strong>
+    </p>
+
+    <p>
+        Total:
+        <strong
+            th:text="${'R$ '
+                + #numbers.formatDecimal(
+                    documento.valorTotal,
+                    1,
+                    'POINT',
+                    2,
+                    'COMMA'
+                )}">
+        </strong>
+    </p>
+
+    <h2>Itens</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Qtd.</th>
+                <th>Descrição</th>
+                <th>Medidas</th>
+                <th>Unitário</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            <tr th:each="item : ${documento.itens}">
+
+                <td th:text="${item.quantidade}">
+                </td>
+
+                <td th:text="${item.descricao}">
+                </td>
+
+                <td
+                    th:text="${item.largura != null
+                        and item.altura != null
+                        ? item.largura
+                            + ' x '
+                            + item.altura
+                            + ' '
+                            + item.unidadeMedida
+                        : '-'}">
+                </td>
+
+                <td
+                    th:text="${'R$ '
+                        + #numbers.formatDecimal(
+                            item.valorUnitario,
+                            1,
+                            'POINT',
+                            2,
+                            'COMMA'
+                        )}">
+                </td>
+
+                <td
+                    th:text="${'R$ '
+                        + #numbers.formatDecimal(
+                            item.valorTotal,
+                            1,
+                            'POINT',
+                            2,
+                            'COMMA'
+                        )}">
+                </td>
+
+            </tr>
+
+        </tbody>
+    </table>
+
+    <a th:href="@{/documentos}">
+        Voltar
+    </a>
+
+</body>
+
+</html>

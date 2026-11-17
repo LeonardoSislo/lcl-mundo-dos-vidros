@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
+
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0">
 
-    <title>LCL Mundo dos Vidros</title>
+    <title>Início | LCL Mundo dos Vidros</title>
 
     <link
         rel="stylesheet"
@@ -16,59 +18,332 @@
 <body>
 
     <aside class="menu-lateral">
+
         <div class="logo">
             <img
                 class="logo-imagem"
                 th:src="@{/img/logo-lcl.png}"
                 alt="Logo LCL Mundo dos Vidros">
-            
         </div>
 
         <nav>
-            <a th:href="@{/}" class="ativo">Início</a>
-            <a th:href="@{/clientes}">Clientes</a>
-            <a th:href="@{/servicos}">Serviços</a>
-            <a th:href="@{/financeiro}">Financeiro</a>
+            <a th:href="@{/}" class="ativo">
+                Início
+            </a>
+
+            <a th:href="@{/clientes}">
+                Clientes
+            </a>
+
+            <a th:href="@{/servicos}">
+                Serviços
+            </a>
+
+            <a th:href="@{/documentos}">
+            Documentos
+            </a>
+
+            <a th:href="@{/financeiro}">
+                Financeiro
+            </a>
         </nav>
+
     </aside>
 
     <main class="conteudo">
+
         <header class="cabecalho">
             <h2>Painel inicial</h2>
-            <p>Bem-vindo ao sistema LCL Mundo dos Vidros.</p>
+
+            <p>
+                Resumo geral da LCL Mundo dos Vidros.
+            </p>
         </header>
 
-        <section class="indicadores">
-            <article class="cartao">
-                <span>Clientes cadastrados</span>
-                <strong>0</strong>
+        <section class="home-grid">
+
+            <!-- Resumo financeiro do mês -->
+
+            <article class="painel resumo-mensal">
+
+                <div class="titulo-resumo">
+
+                    <div>
+                        <span class="rotulo-resumo">
+                            Neste mês
+                        </span>
+
+                        <h3 th:text="${nomeMes}">
+                            Novembro 2026
+                        </h3>
+                    </div>
+
+                    <a
+                        class="link-consultar"
+                        th:href="@{/financeiro}">
+                        Consultar financeiro
+                    </a>
+
+                </div>
+
+                <div class="cartao-faturamento">
+
+                    <span>Faturamento bruto</span>
+
+                    <strong
+                        th:text="${'R$ ' + #numbers.formatDecimal(
+                            totalBrutoMes,
+                            1,
+                            'POINT',
+                            2,
+                            'COMMA'
+                        )}">
+                        R$ 0,00
+                    </strong>
+
+                    <div class="rodape-faturamento">
+
+                        <span>
+                            <b th:text="${quantidadeExecutadosMes}">
+                                0
+                            </b>
+
+                            <span
+                                th:text="${quantidadeExecutadosMes == 1
+                                    ? ' serviço executado'
+                                    : ' serviços executados'}">
+                                serviços executados
+                            </span>
+                        </span>
+
+                        <span th:text="${nomeMes}">
+                            Novembro 2026
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <!-- Quantidades gerais -->
+
+                <div class="resumo-status">
+
+                    <a
+                        class="item-status"
+                        th:href="@{/clientes}">
+
+                        <span>Clientes</span>
+
+                        <strong th:text="${quantidadeClientes}">
+                            0
+                        </strong>
+
+                    </a>
+
+                    <a
+                        class="item-status"
+                        th:href="@{/servicos(status='Pendente')}">
+
+                        <span>Pendentes</span>
+
+                        <strong th:text="${quantidadePendentes}">
+                            0
+                        </strong>
+
+                    </a>
+
+                    <a
+                        class="item-status"
+                        th:href="@{/servicos(status='Em andamento')}">
+
+                        <span>Em andamento</span>
+
+                        <strong th:text="${quantidadeEmAndamento}">
+                            0
+                        </strong>
+
+                    </a>
+
+                    <a
+                        class="item-status"
+                        th:href="@{/servicos(status='Concluído')}">
+
+                        <span>Concluídos</span>
+
+                        <strong th:text="${quantidadeConcluidos}">
+                            0
+                        </strong>
+
+                    </a>
+
+                </div>
+
             </article>
 
-            <article class="cartao">
-                <span>Serviços pendentes</span>
-                <strong>0</strong>
+            <!-- Serviços recentes -->
+
+            <article class="painel painel-servicos-recentes">
+
+                <div class="cabecalho-servicos-recentes">
+
+                    <div>
+                        <h3>Serviços recentes</h3>
+
+                        <p>
+                            Últimos serviços cadastrados no sistema.
+                        </p>
+                    </div>
+
+                    <a
+                        class="botao"
+                        th:href="@{/servicos}">
+                        Ver todos
+                    </a>
+
+                </div>
+
+                <!-- Só aparece quando não existem serviços -->
+
+                <div
+                    class="estado-vazio"
+                    th:if="${#lists.isEmpty(servicosRecentes)}">
+
+                    <p>
+                        Nenhum serviço cadastrado até o momento.
+                    </p>
+
+                    <a
+                        class="botao"
+                        th:href="@{/servicos/novo}">
+                        Cadastrar serviço
+                    </a>
+
+                </div>
+
+                <!-- Só aparece quando existem serviços -->
+
+                <div
+                    class="lista-servicos-home"
+                    th:unless="${#lists.isEmpty(servicosRecentes)}">
+
+                    <div class="cabecalho-lista-home">
+                        <span>Cliente</span>
+                        <span>Data</span>
+                        <span>Valor</span>
+                        <span>Status</span>
+                    </div>
+
+                    <a
+                        class="servico-home"
+                        th:each="servico : ${servicosRecentes}"
+                        th:href="@{/servicos/{id}/consultar(
+                            id=${servico.idServico}
+                        )}">
+
+                        <!-- Cliente e tipo -->
+
+                        <div class="servico-home-cliente">
+
+                            <strong
+                                th:text="${servico.cliente != null
+                                    ? 'ID ' + servico.cliente.idCliente
+                                        + ' - ' + servico.cliente.nome
+                                    : 'Cliente não informado'}">
+                                Cliente
+                            </strong>
+
+                            <span
+                                th:text="${servico.tipoDeServico != null
+                                    ? servico.tipoDeServico.tipo
+                                    : 'Tipo não informado'}">
+                                Tipo
+                            </span>
+
+                        </div>
+
+                        <!-- Data -->
+
+                        <div class="servico-home-data">
+
+                            <strong
+                                th:text="${servico.dataInstalacao != null
+                                    ? #temporals.format(
+                                        servico.dataInstalacao,
+                                        'dd/MM/yyyy'
+                                      )
+                                    : (servico.dataVenda != null
+                                        ? #temporals.format(
+                                            servico.dataVenda,
+                                            'dd/MM/yyyy'
+                                          )
+                                        : '-')}">
+                                -
+                            </strong>
+
+                            <span
+                                th:text="${servico.dataInstalacao != null
+                                    ? 'Execução'
+                                    : (servico.dataVenda != null
+                                        ? 'Venda'
+                                        : 'Sem data')}">
+                                Data
+                            </span>
+
+                        </div>
+
+                        <!-- Valor -->
+
+                        <div class="servico-home-valor">
+
+                            <strong
+                                th:text="${servico.valorCobrado != null
+                                    ? 'R$ ' + #numbers.formatDecimal(
+                                        servico.valorCobrado,
+                                        1,
+                                        'POINT',
+                                        2,
+                                        'COMMA'
+                                      )
+                                    : '-'}">
+                                R$ 0,00
+                            </strong>
+
+                            <span>Valor cobrado</span>
+
+                        </div>
+
+                        <!-- Status -->
+
+                        <div class="servico-home-status">
+
+                            <span
+                                class="status-servico"
+                                th:classappend="${servico.statusServico == 'Pendente'}
+                                    ? ' status-pendente'
+                                    : (${servico.statusServico == 'Em andamento'}
+                                        ? ' status-andamento'
+                                        : (${servico.statusServico == 'Concluído'}
+                                            ? ' status-concluido'
+                                            : ''))"
+                                th:text="${servico.statusServico != null
+                                    and !servico.statusServico.isBlank()
+                                    ? servico.statusServico
+                                    : 'Sem status'}">
+                                Status
+                            </span>
+
+                        </div>
+
+                    </a>
+
+                </div>
+
             </article>
 
-            <article class="cartao">
-                <span>Serviços em andamento</span>
-                <strong>0</strong>
-            </article>
-
-            <article class="cartao">
-                <span>Serviços concluídos</span>
-                <strong>0</strong>
-            </article>
         </section>
 
-        <section class="painel">
-            <h3>Serviços recentes</h3>
-
-            <div class="estado-vazio">
-                <p>Nenhum serviço cadastrado até o momento.</p>
-                <a th:href="@{/servicos/novo}" class="botao">Cadastrar serviço</a>
-            </div>
-        </section>
     </main>
 
 </body>
+
 </html>

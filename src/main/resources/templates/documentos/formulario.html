@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+
+    <title
+        th:text="${documento.tipo.descricao
+            + ' | LCL Mundo dos Vidros'}">
+        Documento
+    </title>
+</head>
+
+<body>
+
+    <h1 th:text="${'Novo ' + documento.tipo.descricao}">
+        Novo documento
+    </h1>
+
+    <p
+        th:if="${mensagemErro}"
+        th:text="${mensagemErro}">
+    </p>
+
+    <form
+        th:action="@{/documentos/salvar}"
+        th:object="${documento}"
+        method="post">
+
+        <input
+            type="hidden"
+            th:field="*{tipo}">
+
+        <div>
+            <label>Número</label>
+
+            <input
+                type="text"
+                th:field="*{numero}"
+                readonly>
+        </div>
+
+        <div>
+            <label>Data de emissão</label>
+
+            <input
+                type="date"
+                th:field="*{dataEmissao}"
+                required>
+        </div>
+
+        <div>
+            <label>Status</label>
+
+            <input
+                type="text"
+                th:field="*{status}"
+                required>
+        </div>
+
+        <div>
+            <label>Cliente</label>
+
+            <select
+                th:field="*{cliente}"
+                required>
+
+                <option value="">
+                    Selecione
+                </option>
+
+                <option
+                    th:each="cliente : ${clientes}"
+                    th:value="${cliente.idCliente}"
+                    th:text="${'ID '
+                        + cliente.idCliente
+                        + ' - '
+                        + cliente.nome}">
+                </option>
+
+            </select>
+        </div>
+
+        <div>
+            <label>Nome do cliente</label>
+
+            <input
+                type="text"
+                th:field="*{nomeCliente}">
+        </div>
+
+        <h2>Primeiro item</h2>
+
+        <div>
+            <label>Quantidade</label>
+
+            <input
+                type="number"
+                min="0.01"
+                step="0.01"
+                th:field="*{itens[0].quantidade}">
+        </div>
+
+        <div>
+            <label>Descrição</label>
+
+            <textarea
+                th:field="*{itens[0].descricao}">
+            </textarea>
+        </div>
+
+        <div>
+            <label>Largura</label>
+
+            <input
+                type="number"
+                min="0"
+                step="0.01"
+                th:field="*{itens[0].largura}">
+        </div>
+
+        <div>
+            <label>Altura</label>
+
+            <input
+                type="number"
+                min="0"
+                step="0.01"
+                th:field="*{itens[0].altura}">
+        </div>
+
+        <div>
+            <label>Valor unitário</label>
+
+            <input
+                type="number"
+                min="0"
+                step="0.01"
+                th:field="*{itens[0].valorUnitario}">
+        </div>
+
+        <button type="submit">
+            Salvar documento
+        </button>
+
+    </form>
+
+    <a th:href="@{/documentos}">
+        Cancelar
+    </a>
+
+</body>
+
+</html>

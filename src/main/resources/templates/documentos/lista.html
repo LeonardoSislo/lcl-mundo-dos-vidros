@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Documentos comerciais</title>
+</head>
+
+<body>
+
+    <h1>Documentos comerciais</h1>
+
+    <p
+        th:if="${mensagem}"
+        th:text="${mensagem}">
+    </p>
+
+    <a th:href="@{/orcamentos/novo}">
+        Novo orçamento
+    </a>
+
+    <a th:href="@{/pedidos/novo}">
+        Novo pedido
+    </a>
+
+    <p th:if="${#lists.isEmpty(documentos)}">
+        Nenhum documento cadastrado.
+    </p>
+
+    <ul th:unless="${#lists.isEmpty(documentos)}">
+
+        <li th:each="documento : ${documentos}">
+
+            <span th:text="${documento.numero}">
+            </span>
+
+            -
+
+            <span th:text="${documento.tipo.descricao}">
+            </span>
+
+            -
+
+            <span th:text="${documento.nomeCliente}">
+            </span>
+
+            <a
+                th:href="@{/documentos/{id}/consultar(
+                    id=${documento.idDocumento}
+                )}">
+                Consultar
+            </a>
+
+        </li>
+
+    </ul>
+
+</body>
+
+</html>
