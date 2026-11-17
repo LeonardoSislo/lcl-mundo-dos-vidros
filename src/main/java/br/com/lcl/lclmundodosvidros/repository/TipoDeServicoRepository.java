@@ -10,4 +10,6 @@ public interface TipoDeServicoRepository
         extends JpaRepository<TipoDeServico, Integer> {
 
     List<TipoDeServico> findAllByOrderByTipoAsc();
+
+    boolean existsByTipoIgnoreCase(String tipo);
 }

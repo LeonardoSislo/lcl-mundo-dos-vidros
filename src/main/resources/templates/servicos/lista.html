@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
 
@@ -27,9 +28,18 @@
 
         <nav>
             <a th:href="@{/}">Início</a>
-            <a th:href="@{/clientes}">Clientes</a>
-            <a th:href="@{/servicos}" class="ativo">Serviços</a>
-            <a href="#">Financeiro</a>
+
+            <a th:href="@{/clientes}">
+                Clientes
+            </a>
+
+            <a
+                th:href="@{/servicos}"
+                class="ativo">
+                Serviços
+            </a>
+
+            <a th:href="@{/financeiro}">Financeiro</a>
         </nav>
 
     </aside>
@@ -52,7 +62,10 @@
 
             <div>
                 <h2>Serviços</h2>
-                <p>Consulte e gerencie os serviços cadastrados.</p>
+
+                <p>
+                    Consulte e gerencie os serviços cadastrados.
+                </p>
             </div>
 
             <a
@@ -63,13 +76,15 @@
 
         </header>
 
+
+        
+
         <section class="indicadores indicadores-servicos">
 
             <article class="cartao">
                 <span>Pendentes</span>
 
-                <strong
-                    th:text="${quantidadePendentes}">
+                <strong th:text="${quantidadePendentes}">
                     0
                 </strong>
             </article>
@@ -77,8 +92,7 @@
             <article class="cartao">
                 <span>Em andamento</span>
 
-                <strong
-                    th:text="${quantidadeEmAndamento}">
+                <strong th:text="${quantidadeEmAndamento}">
                     0
                 </strong>
             </article>
@@ -86,13 +100,139 @@
             <article class="cartao">
                 <span>Concluídos</span>
 
-                <strong
-                    th:text="${quantidadeConcluidos}">
+                <strong th:text="${quantidadeConcluidos}">
                     0
                 </strong>
             </article>
 
         </section>
+
+        <section class="painel painel-filtros-servicos">
+
+                <form
+                    class="filtros-servicos"
+                    th:action="@{/servicos}"
+                    method="get">
+
+                    <div class="campo-filtro">
+                        <label for="cliente">
+                            Nome do cliente
+                        </label>
+
+                        <input
+                            id="cliente"
+                            type="search"
+                            name="cliente"
+                            th:value="${clientePesquisado}"
+                            placeholder="Pesquisar cliente"
+                            autocomplete="off">
+                    </div>
+
+                    <div class="campo-filtro">
+                        <label for="descricao">
+                            Descrição
+                        </label>
+
+                        <input
+                            id="descricao"
+                            type="search"
+                            name="descricao"
+                            th:value="${descricaoPesquisada}"
+                            placeholder="Pesquisar descrição"
+                            autocomplete="off">
+                    </div>
+
+                    <div class="campo-filtro">
+                        <label for="tipo">
+                            Tipo do serviço
+                        </label>
+
+                        <select id="tipo" name="tipo">
+                            <option value="">
+                                Todos os tipos
+                            </option>
+
+                            <option
+                                th:each="tipoServico : ${tipos}"
+                                th:value="${tipoServico.idTipo}"
+                                th:text="${tipoServico.tipo}"
+                                th:selected="${tipoSelecionado != null
+                                    and tipoSelecionado == tipoServico.idTipo}">
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="campo-filtro">
+                        <label for="status">
+                            Status
+                        </label>
+
+                        <select id="status" name="status">
+                            <option value="">
+                                Todos os status
+                            </option>
+
+                            <option
+                                value="Pendente"
+                                th:selected="${statusSelecionado == 'Pendente'}">
+                                Pendente
+                            </option>
+
+                            <option
+                                value="Em andamento"
+                                th:selected="${statusSelecionado == 'Em andamento'}">
+                                Em andamento
+                            </option>
+
+                            <option
+                                value="Concluído"
+                                th:selected="${statusSelecionado == 'Concluído'}">
+                                Concluído
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="campo-filtro">
+                        <label for="ordem">
+                            Ordenar por
+                        </label>
+
+                        <select id="ordem" name="ordem">
+                            <option
+                                value="recente"
+                                th:selected="${ordemSelecionada == 'recente'}">
+                                Data mais recente
+                            </option>
+
+                            <option
+                                value="antiga"
+                                th:selected="${ordemSelecionada == 'antiga'}">
+                                Data mais antiga
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="acoes-filtros-servicos">
+
+                        <button
+                            class="botao botao-pesquisar"
+                            type="submit">
+                            Filtrar
+                        </button>
+
+                        <a
+                            class="botao botao-limpar"
+                            th:href="@{/servicos}">
+                            Limpar
+                        </a>
+
+                    </div>
+
+                </form>
+
+        </section>
+
+
 
         <section class="painel">
 
@@ -100,7 +240,16 @@
                 class="estado-vazio"
                 th:if="${#lists.isEmpty(servicos)}">
 
-                <p>Nenhum serviço cadastrado até o momento.</p>
+                <p>
+                    Nenhum serviço cadastrado até o momento.
+                </p>
+
+                <a
+                    class="botao"
+                    th:href="@{/servicos/novo}">
+                    Cadastrar primeiro serviço
+                </a>
+
             </div>
 
             <div
@@ -109,121 +258,152 @@
 
                 <table class="tabela">
 
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Cliente</th>
-                            <th>Tipo</th>
-                            <th>Status</th>
-                            <th>Venda</th>
-                            <th>Orçamento</th>
-                            <th>Instalação</th>
-                            <th>Valor cobrado</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
+                <thead>
+                    <tr>
+                        <th class="coluna-id">ID</th>
+                        <th class="coluna-cliente">Cliente</th>
+                        <th class="coluna-tipo">Tipo</th>
+                        <th class="coluna-descricao">Descrição</th>
+                        <th class="coluna-status">Status</th>
+                        <th class="coluna-data">Venda</th>
+                        <th class="coluna-valor">Valor cobrado</th>
+                        <th class="coluna-acoes">Ações</th>
+                    </tr>
+                </thead>
 
                     <tbody>
 
-                        <tr th:each="servico : ${servicos}">
+                            <tr th:each="servico : ${servicos}">
 
-                            <td th:text="${servico.idServico}">
-                            </td>
+                                <td
+                                    class="coluna-id"
+                                    th:text="${servico.idServico}">
+                                    1
+                                </td>
 
-                            <td
-                                th:text="${servico.cliente != null
-                                    ? servico.cliente.nome
-                                    : '-'}">
-                            </td>
+                                <td
+                                    class="coluna-cliente"
+                                    th:text="${servico.cliente != null
+                                        ? servico.cliente.nome
+                                        : '-'}">
+                                    Cliente
+                                </td>
 
-                            <td
-                                th:text="${servico.tipoDeServico != null
-                                    ? servico.tipoDeServico.tipo
-                                    : '-'}">
-                            </td>
+                                <td
+                                    class="coluna-tipo"
+                                    th:text="${servico.tipoDeServico != null
+                                        ? servico.tipoDeServico.tipo
+                                        : '-'}">
+                                    Tipo
+                                </td>
 
-                            <td
-                                th:text="${servico.statusServico != null
-                                    and !servico.statusServico.isBlank()
-                                    ? servico.statusServico
-                                    : '-'}">
-                            </td>
+                                <td class="coluna-descricao">
+                                    <span
+                                        class="descricao-resumida"
+                                        th:text="${servico.descricao != null
+                                            and !servico.descricao.isBlank()
+                                            ? servico.descricao
+                                            : '-'}"
+                                        th:title="${servico.descricao}">
+                                        Descrição
+                                    </span>
+                                </td>
 
-                            <td
-                                th:text="${servico.dataVenda != null
-                                    ? #temporals.format(
-                                        servico.dataVenda,
-                                        'dd/MM/yyyy'
-                                      )
-                                    : '-'}">
-                            </td>
+                                <td class="coluna-status">
+                                    <span
+                                        class="status-servico"
+                                        th:classappend="${servico.statusServico == 'Pendente'}
+                                            ? ' status-pendente'
+                                            : (${servico.statusServico == 'Em andamento'}
+                                                ? ' status-andamento'
+                                                : (${servico.statusServico == 'Concluído'}
+                                                    ? ' status-concluido'
+                                                    : ''))"
+                                        th:text="${servico.statusServico != null
+                                            and !servico.statusServico.isBlank()
+                                            ? servico.statusServico
+                                            : '-'}">
+                                        Status
+                                    </span>
+                                </td>
 
-                            <td
-                                th:text="${servico.dataOrcamento != null
-                                    ? #temporals.format(
-                                        servico.dataOrcamento,
-                                        'dd/MM/yyyy'
-                                      )
-                                    : '-'}">
-                            </td>
+                                <td
+                                    class="coluna-data"
+                                    th:text="${servico.dataVenda != null
+                                        ? #temporals.format(
+                                            servico.dataVenda,
+                                            'dd/MM/yyyy'
+                                        )
+                                        : '-'}">
+                                    -
+                                </td>
 
-                            <td
-                                th:text="${servico.dataInstalacao != null
-                                    ? #temporals.format(
-                                        servico.dataInstalacao,
-                                        'dd/MM/yyyy'
-                                      )
-                                    : '-'}">
-                            </td>
+                                <td
+                                    class="coluna-valor"
+                                    th:text="${servico.valorCobrado != null
+                                        ? 'R$ ' + #numbers.formatDecimal(
+                                            servico.valorCobrado,
+                                            1,
+                                            'POINT',
+                                            2,
+                                            'COMMA'
+                                        )
+                                        : '-'}">
+                                    -
+                                </td>
 
-                            <td
-                                th:text="${servico.valorCobrado != null
-                                    ? 'R$ ' + #numbers.formatDecimal(
-                                        servico.valorCobrado,
-                                        1,
-                                        'POINT',
-                                        2,
-                                        'COMMA'
-                                      )
-                                    : '-'}">
-                            </td>
+                                <td class="coluna-acoes">
 
-                            <td class="acoes-tabela">
+                                    <div class="grupo-acoes">
 
-                                <div class="grupo-acoes">
+                                        <a
+                                            class="botao-consultar"
+                                            th:href="@{/servicos/{id}/consultar(
+                                                id=${servico.idServico}
+                                            )}">
+                                            Consultar
+                                        </a>
 
-                                    <a
-                                        class="botao-editar"
-                                        th:href="@{/servicos/{id}/editar(id=${servico.idServico})}">
-                                        Editar
-                                    </a>
+                                        <a
+                                            class="botao-editar"
+                                            th:href="@{/servicos/{id}/editar(
+                                                id=${servico.idServico}
+                                            )}">
+                                            Editar
+                                        </a>
 
-                                    <form
-                                        th:action="@{/servicos/excluir}"
-                                        method="post">
+                                        <form
+                                            th:action="@{/servicos/excluir}"
+                                            method="post"
+                                            onsubmit="return confirmarExclusaoServico(this);">
 
-                                        <input
-                                            type="hidden"
-                                            name="id"
-                                            th:value="${servico.idServico}">
+                                            <input
+                                                type="hidden"
+                                                name="id"
+                                                th:value="${servico.idServico}">
 
-                                        <button
-                                            type="submit"
-                                            class="botao-excluir">
+                                            <input
+                                                type="hidden"
+                                                class="nome-cliente-servico"
+                                                th:value="${servico.cliente != null
+                                                    ? servico.cliente.nome
+                                                    : 'cliente não informado'}">
 
-                                            Excluir
+                                            <button
+                                                type="submit"
+                                                class="botao-excluir">
+                                                Excluir
+                                            </button>
 
-                                        </button>
+                                        </form>
 
-                                    </form>
+                                    </div>
 
-                                </div>
+                                </td>
 
-                            </td>
+                            </tr>
 
-                        </tr>
-
-                    </tbody>
+                        </tbody>
 
                 </table>
 
@@ -233,5 +413,22 @@
 
     </main>
 
+    <script>
+        function confirmarExclusaoServico(formulario) {
+            const campoNome = formulario.querySelector(
+                ".nome-cliente-servico"
+            );
+
+            const nomeCliente = campoNome.value;
+
+            return window.confirm(
+                'Deseja realmente excluir o serviço do cliente "' +
+                nomeCliente +
+                '"? Esta operação não poderá ser desfeita.'
+            );
+        }
+    </script>
+
 </body>
+
 </html>

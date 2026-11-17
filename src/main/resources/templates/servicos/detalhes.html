@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>Consultar Serviço | LCL Mundo dos Vidros</title>
+
+    <link
+        rel="stylesheet"
+        th:href="@{/css/style.css}">
+</head>
+
+<body>
+
+    <aside class="menu-lateral">
+
+        <div class="logo">
+            <img
+                class="logo-imagem"
+                th:src="@{/img/logo-lcl.png}"
+                alt="Logo LCL Mundo dos Vidros">
+        </div>
+
+        <nav>
+            <a th:href="@{/}">Início</a>
+            <a th:href="@{/clientes}">Clientes</a>
+            <a th:href="@{/servicos}" class="ativo">Serviços</a>
+           <a th:href="@{/financeiro}">Financeiro</a>
+        </nav>
+
+    </aside>
+
+    <main class="conteudo">
+
+        <header class="cabecalho cabecalho-lista">
+
+            <div>
+                <h2>Consultar serviço</h2>
+
+                <p>
+                    Informações completas do serviço selecionado.
+                </p>
+            </div>
+
+            <a
+                class="botao botao-secundario"
+                th:href="@{/servicos}">
+                Voltar
+            </a>
+
+        </header>
+
+        <section class="painel painel-detalhes">
+
+            <div class="grade-detalhes">
+
+                <div class="item-detalhe">
+                    <span>ID do serviço</span>
+                    <strong th:text="${servico.idServico}">-</strong>
+                </div>
+
+                <div class="item-detalhe">
+                    <span>Cliente</span>
+
+                    <strong
+                        th:text="${servico.cliente != null
+                            ? 'ID ' + servico.cliente.idCliente
+                                + ' - ' + servico.cliente.nome
+                            : '-'}">
+                        -
+                    </strong>
+                </div>
+
+                <div class="item-detalhe">
+                    <span>Tipo do serviço</span>
+
+                    <strong
+                        th:text="${servico.tipoDeServico != null
+                            ? servico.tipoDeServico.tipo
+                            : '-'}">
+                        -
+                    </strong>
+                </div>
+
+                <div class="item-detalhe">
+                    <span>Status</span>
+
+                    <strong
+                        th:text="${servico.statusServico != null
+                            ? servico.statusServico
+                            : '-'}">
+                        -
+                    </strong>
+                </div>
+
+                <div class="item-detalhe">
+                    <span>Data da venda</span>
+
+                    <strong
+                        th:text="${servico.dataVenda != null
+                            ? #temporals.format(
+                                servico.dataVenda,
+                                'dd/MM/yyyy'
+                              )
+                            : '-'}">
+                        -
+                    </strong>
+                </div>
+
+                <div class="item-detalhe">
+                    <span>Data do orçamento</span>
+
+                    <strong
+                        th:text="${servico.dataOrcamento != null
+                            ? #temporals.format(
+                                servico.dataOrcamento,
+                                'dd/MM/yyyy'
+                              )
+                            : '-'}">
+                        -
+                    </strong>
+                </div>
+
+                <div class="item-detalhe">
+                    <span>Data da instalação</span>
+
+                    <strong
+                        th:text="${servico.dataInstalacao != null
+                            ? #temporals.format(
+                                servico.dataInstalacao,
+                                'dd/MM/yyyy'
+                              )
+                            : '-'}">
+                        -
+                    </strong>
+                </div>
+
+                <div class="item-detalhe">
+                    <span>Valor de custo</span>
+
+                    <strong
+                        th:text="${servico.valorCusto != null
+                            ? 'R$ ' + #numbers.formatDecimal(
+                                servico.valorCusto,
+                                1,
+                                'POINT',
+                                2,
+                                'COMMA'
+                              )
+                            : '-'}">
+                        -
+                    </strong>
+                </div>
+
+                <div class="item-detalhe">
+                    <span>Valor cobrado</span>
+
+                    <strong
+                        th:text="${servico.valorCobrado != null
+                            ? 'R$ ' + #numbers.formatDecimal(
+                                servico.valorCobrado,
+                                1,
+                                'POINT',
+                                2,
+                                'COMMA'
+                              )
+                            : '-'}">
+                        -
+                    </strong>
+                </div>
+
+            </div>
+
+            <div class="bloco-detalhe">
+                <h3>Descrição do serviço</h3>
+
+                <p
+                    th:text="${servico.descricao != null
+                        and !servico.descricao.isBlank()
+                        ? servico.descricao
+                        : 'Nenhuma descrição informada.'}">
+                </p>
+            </div>
+
+            <div class="grade-observacoes">
+
+                <div class="bloco-detalhe">
+                    <h3>Observação de pagamento</h3>
+
+                    <p
+                        th:text="${servico.observacaoPagamento != null
+                            and !servico.observacaoPagamento.isBlank()
+                            ? servico.observacaoPagamento
+                            : 'Nenhuma observação informada.'}">
+                    </p>
+                </div>
+
+                <div class="bloco-detalhe">
+                    <h3>Observação de execução</h3>
+
+                    <p
+                        th:text="${servico.observacaoExecucao != null
+                            and !servico.observacaoExecucao.isBlank()
+                            ? servico.observacaoExecucao
+                            : 'Nenhuma observação informada.'}">
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="acoes-formulario">
+
+                <a
+                    class="botao botao-secundario"
+                    th:href="@{/servicos}">
+                    Voltar
+                </a>
+
+                <a
+                    class="botao botao-salvar"
+                    th:href="@{/servicos/{id}/editar(
+                        id=${servico.idServico}
+                    )}">
+                    Editar serviço
+                </a>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</body>
+
+</html>

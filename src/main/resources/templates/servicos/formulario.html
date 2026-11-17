@@ -13,7 +13,34 @@
     <link
         rel="stylesheet"
         th:href="@{/css/style.css}">
+
+        <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/tom-select@2.7.0/dist/css/tom-select.css">
 </head>
+
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.7.0/dist/js/tom-select.complete.min.js"></script>
+
+<script>
+    new TomSelect("#cliente", {
+        create: false,
+        allowEmptyOption: true,
+        placeholder: "Digite o nome ou o ID do cliente",
+        searchField: ["text"],
+        sortField: {
+            field: "text",
+            direction: "asc"
+        },
+
+        render: {
+            no_results: function() {
+                return '<div class="no-results">' +
+                    'Nenhum cliente encontrado.' +
+                    '</div>';
+            }
+        }
+    });
+</script>
 
 <body>
 
@@ -30,7 +57,7 @@
         <a th:href="@{/}">Início</a>
         <a th:href="@{/clientes}">Clientes</a>
         <a th:href="@{/servicos}" class="ativo">Serviços</a>
-        <a href="#">Financeiro</a>
+        <a th:href="@{/financeiro}">Financeiro</a>
     </nav>
 
 </aside>
@@ -55,45 +82,81 @@
 
             <div class="campo">
 
-                <label>Cliente *</label>
+                    <label for="cliente">
+                        Cliente *
+                    </label>
 
-                <select
-                    th:field="*{cliente}"
-                    required>
+                    <select
+                        id="cliente"
+                        th:field="*{cliente}"
+                        required>
 
-                    <option value="">
-                        Selecione o cliente
-                    </option>
+                        <option value="">
+                            Selecione ou pesquise um cliente
+                        </option>
 
-                    <option
-                        th:each="cliente : ${clientes}"
-                        th:value="${cliente.idCliente}"
-                        th:text="${cliente.nome}">
-                    </option>
+                        <option
+                            th:each="cliente : ${clientes}"
+                            th:value="${cliente.idCliente}"
+                            th:text="${'ID ' + cliente.idCliente + ' - ' + cliente.nome}">
+                        </option>
 
-                </select>
+                    </select>
+
+                    <span class="ajuda-campo">
+                        Pesquise pelo nome ou pelo ID do cliente.
+                    </span>
+
+                    <span
+                        class="mensagem-erro"
+                        th:if="${#fields.hasErrors('cliente')}"
+                        th:errors="*{cliente}">
+                    </span>
 
             </div>
 
+
             <div class="campo">
 
-                <label>Tipo de Serviço *</label>
+                    <label for="tipoDeServico">
+                        Tipo de Serviço *
+                    </label>
 
-                <select
-                    th:field="*{tipoDeServico}"
-                    required>
+                    <div class="campo-com-botao">
 
-                    <option value="">
-                        Selecione o tipo
-                    </option>
+                        <select
+                            id="tipoDeServico"
+                            th:field="*{tipoDeServico}"
+                            required>
 
-                    <option
-                        th:each="tipo : ${tipos}"
-                        th:value="${tipo.idTipo}"
-                        th:text="${tipo.tipo}">
-                    </option>
+                            <option value="">
+                                Selecione o tipo
+                            </option>
 
-                </select>
+                            <option
+                                th:each="tipo : ${tipos}"
+                                th:value="${tipo.idTipo}"
+                                th:text="${tipo.tipo}">
+                            </option>
+
+                        </select>
+
+                        <button
+                            class="botao-adicionar-tipo"
+                            type="button"
+                            title="Cadastrar novo tipo de serviço"
+                            aria-label="Cadastrar novo tipo de serviço"
+                            onclick="abrirModalTipoServico()">
+                            +
+                        </button>
+
+                    </div>
+
+                    <span
+                        class="mensagem-erro"
+                        th:if="${#fields.hasErrors('tipoDeServico')}"
+                        th:errors="*{tipoDeServico}">
+                    </span>
 
             </div>
 
@@ -133,23 +196,44 @@
 
             <div class="campo">
 
-                <label>Data da venda</label>
+                <label for="dataVenda">
+                    Data da venda
+                </label>
 
                 <input
+                    id="dataVenda"
                     type="date"
                     th:field="*{dataVenda}">
 
+                <span
+                    class="mensagem-erro"
+                    th:if="${#fields.hasErrors('dataVenda')}"
+                    th:errors="*{dataVenda}">
+                </span>
+
             </div>
+
+
 
             <div class="campo">
 
-                <label>Data da execução</label>
+                <label for="dataInstalacao">
+                    Data da Instalação
+                </label>
 
                 <input
+                    id="dataInstalacao"
                     type="date"
                     th:field="*{dataInstalacao}">
 
+                <span
+                    class="mensagem-erro"
+                    th:if="${#fields.hasErrors('dataInstalacao')}"
+                    th:errors="*{dataInstalacao}">
+                </span>
+
             </div>
+
 
             <div class="campo campo-completo">
 
@@ -186,27 +270,80 @@
 
             <div class="campo">
 
-                <label>Valor de custo</label>
+                    <label for="valorCustoExibicao">
+                        Valor de custo
+                    </label>
 
-                <input
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    th:field="*{valorCusto}">
+                    <div class="campo-moeda">
+
+                        <span class="prefixo-moeda">
+                            R$
+                        </span>
+
+                        <input
+                            id="valorCustoExibicao"
+                            class="entrada-moeda"
+                            type="text"
+                            inputmode="numeric"
+                            autocomplete="off"
+                            placeholder="0,00"
+                            maxlength="18"
+                            th:attr="data-valor-inicial=${servico.valorCusto}">
+
+                    </div>
+
+                    <input
+                        id="valorCusto"
+                        type="hidden"
+                        th:field="*{valorCusto}">
+
+                    <span
+                        class="mensagem-erro"
+                        th:if="${#fields.hasErrors('valorCusto')}"
+                        th:errors="*{valorCusto}">
+                    </span>
+
+                </div>
+
+                <div class="campo">
+
+                    <label for="valorCobradoExibicao">
+                        Valor cobrado
+                    </label>
+
+                    <div class="campo-moeda">
+
+                        <span class="prefixo-moeda">
+                            R$
+                        </span>
+
+                        <input
+                            id="valorCobradoExibicao"
+                            class="entrada-moeda"
+                            type="text"
+                            inputmode="numeric"
+                            autocomplete="off"
+                            placeholder="0,00"
+                            maxlength="18"
+                            th:attr="data-valor-inicial=${servico.valorCobrado}">
+
+                    </div>
+
+                    <input
+                        id="valorCobrado"
+                        type="hidden"
+                        th:field="*{valorCobrado}">
+
+                    <span
+                        class="mensagem-erro"
+                        th:if="${#fields.hasErrors('valorCobrado')}"
+                        th:errors="*{valorCobrado}">
+                    </span>
+                    
 
             </div>
 
-            <div class="campo">
 
-                <label>Valor cobrado</label>
-
-                <input
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    th:field="*{valorCobrado}">
-
-            </div>
 
             <div class="acoes-formulario campo-completo">
 
@@ -233,6 +370,412 @@
     </section>
 
 </main>
+
+<div
+    id="modalTipoServico"
+    class="modal"
+    aria-hidden="true">
+
+    <div
+        class="modal-conteudo modal-tipo"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="tituloModalTipo">
+
+        <h3 id="tituloModalTipo">
+            Novo tipo de serviço
+        </h3>
+
+        <p>
+            Informe o nome do tipo que será adicionado.
+        </p>
+
+        <div class="campo">
+            <label for="nomeNovoTipo">
+                Nome do tipo *
+            </label>
+
+            <input
+                id="nomeNovoTipo"
+                type="text"
+                maxlength="255"
+                placeholder="Ex.: Instalação de box"
+                autocomplete="off">
+        </div>
+
+        <div
+            id="mensagemTipoServico"
+            class="mensagem-modal"
+            hidden>
+        </div>
+
+        <div class="acoes-modal">
+
+            <button
+                class="botao botao-secundario"
+                type="button"
+                onclick="fecharModalTipoServico()">
+                Cancelar
+            </button>
+
+            <button
+                id="botaoSalvarTipo"
+                class="botao botao-salvar"
+                type="button"
+                onclick="salvarNovoTipoServico()">
+                Adicionar tipo
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+     <script>
+                const modalTipo = document.getElementById("modalTipoServico");
+                const campoNovoTipo = document.getElementById("nomeNovoTipo");
+                const mensagemTipo = document.getElementById(
+                    "mensagemTipoServico"
+                );
+                const botaoSalvarTipo = document.getElementById(
+                    "botaoSalvarTipo"
+                );
+
+                function abrirModalTipoServico() {
+                    mensagemTipo.hidden = true;
+                    mensagemTipo.textContent = "";
+                    mensagemTipo.className = "mensagem-modal";
+
+                    campoNovoTipo.value = "";
+
+                    modalTipo.classList.add("modal-visivel");
+                    modalTipo.setAttribute("aria-hidden", "false");
+
+                    setTimeout(function () {
+                        campoNovoTipo.focus();
+                    }, 100);
+                }
+
+                function fecharModalTipoServico() {
+                    modalTipo.classList.remove("modal-visivel");
+                    modalTipo.setAttribute("aria-hidden", "true");
+
+                    campoNovoTipo.value = "";
+                    mensagemTipo.hidden = true;
+                }
+
+                async function salvarNovoTipoServico() {
+                    const nomeTipo = campoNovoTipo.value.trim();
+
+                    if (!nomeTipo) {
+                        exibirMensagemTipo(
+                            "Informe o nome do tipo de serviço.",
+                            false
+                        );
+
+                        campoNovoTipo.focus();
+                        return;
+                    }
+
+                    botaoSalvarTipo.disabled = true;
+                    botaoSalvarTipo.textContent = "Salvando...";
+
+                    const dados = new URLSearchParams();
+                    dados.append("tipo", nomeTipo);
+
+                    try {
+                        const resposta = await fetch(
+                            "/servicos/tipos/adicionar",
+                            {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type":
+                                        "application/x-www-form-urlencoded"
+                                },
+                                body: dados.toString()
+                            }
+                        );
+
+                        const resultado = await resposta.json();
+
+                        if (!resposta.ok || !resultado.sucesso) {
+                            exibirMensagemTipo(
+                                resultado.mensagem ||
+                                    "Não foi possível cadastrar o tipo.",
+                                false
+                            );
+
+                            return;
+                        }
+
+                        adicionarTipoNoSelect(
+                            resultado.id,
+                            resultado.tipo
+                        );
+
+                        exibirMensagemTipo(
+                            resultado.mensagem,
+                            true
+                        );
+
+                        setTimeout(function () {
+                            fecharModalTipoServico();
+                        }, 700);
+
+                    } catch (erro) {
+                        exibirMensagemTipo(
+                            "Não foi possível comunicar com o servidor.",
+                            false
+                        );
+
+                    } finally {
+                        botaoSalvarTipo.disabled = false;
+                        botaoSalvarTipo.textContent = "Adicionar tipo";
+                    }
+                }
+
+                function adicionarTipoNoSelect(id, nome) {
+                    const select = document.getElementById(
+                        "tipoDeServico"
+                    );
+
+                    const opcao = new Option(
+                        nome,
+                        id,
+                        true,
+                        true
+                    );
+
+                    select.add(opcao);
+                    select.value = String(id);
+                    select.dispatchEvent(
+                        new Event("change", { bubbles: true })
+                    );
+                }
+
+                function exibirMensagemTipo(mensagem, sucesso) {
+                    mensagemTipo.textContent = mensagem;
+                    mensagemTipo.hidden = false;
+
+                    mensagemTipo.className = sucesso
+                        ? "mensagem-modal mensagem-modal-sucesso"
+                        : "mensagem-modal mensagem-modal-erro";
+                }
+
+                campoNovoTipo.addEventListener(
+                    "keydown",
+                    function (evento) {
+                        if (evento.key === "Enter") {
+                            evento.preventDefault();
+                            salvarNovoTipoServico();
+                        }
+                    }
+                );
+
+                modalTipo.addEventListener(
+                    "click",
+                    function (evento) {
+                        if (evento.target === modalTipo) {
+                            fecharModalTipoServico();
+                        }
+                    }
+                );
+
+                document.addEventListener(
+                    "keydown",
+                    function (evento) {
+                        if (
+                            evento.key === "Escape" &&
+                            modalTipo.classList.contains("modal-visivel")
+                        ) {
+                            fecharModalTipoServico();
+                        }
+                    }
+                );
+    </script>
+
+    <script>
+                function somenteNumeros(valor) {
+                    return valor.replace(/\D/g, "");
+                }
+
+                function formatarReaisPorCentavos(digitos) {
+                    if (!digitos) {
+                        return "";
+                    }
+
+                    const valorEmCentavos = Number(digitos);
+
+                    return (valorEmCentavos / 100).toLocaleString(
+                        "pt-BR",
+                        {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                        }
+                    );
+                }
+
+                function converterParaDecimal(digitos) {
+                    if (!digitos) {
+                        return "";
+                    }
+
+                    const valorEmCentavos = Number(digitos);
+
+                    return (valorEmCentavos / 100).toFixed(2);
+                }
+
+                function decimalParaDigitos(valorDecimal) {
+                    if (
+                        valorDecimal === null ||
+                        valorDecimal === undefined ||
+                        valorDecimal === ""
+                    ) {
+                        return "";
+                    }
+
+                    const valorNormalizado = String(valorDecimal)
+                        .replace(",", ".");
+
+                    const numero = Number(valorNormalizado);
+
+                    if (Number.isNaN(numero)) {
+                        return "";
+                    }
+
+                    return Math.round(numero * 100).toString();
+                }
+
+                function configurarCampoMoeda(
+                    idExibicao,
+                    idCampoReal
+                ) {
+                    const campoExibicao = document.getElementById(
+                        idExibicao
+                    );
+
+                    const campoReal = document.getElementById(
+                        idCampoReal
+                    );
+
+                    if (!campoExibicao || !campoReal) {
+                        return;
+                    }
+
+                    const valorInicial = campoExibicao.dataset.valorInicial;
+                    const digitosIniciais = decimalParaDigitos(valorInicial);
+
+                    campoExibicao.value = formatarReaisPorCentavos(
+                        digitosIniciais
+                    );
+
+                    if (digitosIniciais) {
+                        campoReal.value = converterParaDecimal(
+                            digitosIniciais
+                        );
+                    }
+
+                    campoExibicao.addEventListener(
+                        "input",
+                        function () {
+                            const digitos = somenteNumeros(
+                                campoExibicao.value
+                            );
+
+                            campoExibicao.value =
+                                formatarReaisPorCentavos(digitos);
+
+                            campoReal.value =
+                                converterParaDecimal(digitos);
+                        }
+                    );
+
+                    campoExibicao.addEventListener(
+                        "paste",
+                        function (evento) {
+                            evento.preventDefault();
+
+                            const texto = evento.clipboardData.getData(
+                                "text"
+                            );
+
+                            const digitos = somenteNumeros(texto);
+
+                            campoExibicao.value =
+                                formatarReaisPorCentavos(digitos);
+
+                            campoReal.value =
+                                converterParaDecimal(digitos);
+                        }
+                    );
+                }
+
+                configurarCampoMoeda(
+                    "valorCustoExibicao",
+                    "valorCusto"
+                );
+
+                configurarCampoMoeda(
+                    "valorCobradoExibicao",
+                    "valorCobrado"
+                );
+        </script>
+
+
+        <script>
+                const campoDataVenda =
+                    document.getElementById("dataVenda");
+
+                const campoDataInstalacao =
+                    document.getElementById("dataInstalacao");
+
+                function atualizarLimiteDataInstalacao() {
+                    const dataVenda = campoDataVenda.value;
+
+                    if (!dataVenda) {
+                        campoDataInstalacao.removeAttribute("min");
+                        campoDataInstalacao.setCustomValidity("");
+                        return;
+                    }
+
+                    campoDataInstalacao.min = dataVenda;
+
+                    validarDataInstalacao();
+                }
+
+                function validarDataInstalacao() {
+                    const dataVenda = campoDataVenda.value;
+                    const dataInstalacao = campoDataInstalacao.value;
+
+                    if (
+                        dataVenda &&
+                        dataInstalacao &&
+                        dataInstalacao < dataVenda
+                    ) {
+                        campoDataInstalacao.setCustomValidity(
+                            "A data da instalação não pode ser " +
+                            "anterior à data da venda."
+                        );
+
+                        campoDataInstalacao.reportValidity();
+                    } else {
+                        campoDataInstalacao.setCustomValidity("");
+                    }
+                }
+
+                campoDataVenda.addEventListener(
+                    "change",
+                    atualizarLimiteDataInstalacao
+                );
+
+                campoDataInstalacao.addEventListener(
+                    "change",
+                    validarDataInstalacao
+                );
+
+                atualizarLimiteDataInstalacao();
+        </script>
 
 </body>
 </html>

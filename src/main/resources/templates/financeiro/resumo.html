@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>Financeiro | LCL Mundo dos Vidros</title>
+
+    <link
+        rel="stylesheet"
+        th:href="@{/css/style.css}">
+</head>
+
+<body>
+
+    <aside class="menu-lateral">
+
+        <div class="logo">
+            <img
+                class="logo-imagem"
+                th:src="@{/img/logo-lcl.png}"
+                alt="Logo LCL Mundo dos Vidros">
+        </div>
+
+        <nav>
+            <a th:href="@{/}">Início</a>
+            <a th:href="@{/clientes}">Clientes</a>
+            <a th:href="@{/servicos}">Serviços</a>
+
+            <a
+                th:href="@{/financeiro}"
+                class="ativo">
+                Financeiro
+            </a>
+        </nav>
+
+    </aside>
+
+    <main class="conteudo">
+
+        <header class="cabecalho cabecalho-lista">
+
+            <div>
+                <h2>Resumo financeiro</h2>
+
+                <p>
+                    Controle de entradas, saídas e lucro dos
+                    serviços concluídos.
+                </p>
+            </div>
+
+        </header>
+
+        <section class="painel painel-filtros-financeiro">
+
+            <form
+                class="filtros-financeiro"
+                th:action="@{/financeiro}"
+                method="get">
+
+                <div class="campo-filtro">
+                    <label for="dataInicial">
+                        Data inicial
+                    </label>
+
+                    <input
+                        id="dataInicial"
+                        type="date"
+                        name="dataInicial"
+                        th:value="${dataInicial}">
+                </div>
+
+                <div class="campo-filtro">
+                    <label for="dataFinal">
+                        Data final
+                    </label>
+
+                    <input
+                        id="dataFinal"
+                        type="date"
+                        name="dataFinal"
+                        th:value="${dataFinal}">
+                </div>
+
+                <div class="campo-filtro">
+                    <label for="tipo">
+                        Tipo do serviço
+                    </label>
+
+                    <select id="tipo" name="tipo">
+                        <option value="">
+                            Todos os tipos
+                        </option>
+
+                        <option
+                            th:each="tipoServico : ${tipos}"
+                            th:value="${tipoServico.idTipo}"
+                            th:text="${tipoServico.tipo}"
+                            th:selected="${tipoSelecionado != null
+                                and tipoSelecionado
+                                    == tipoServico.idTipo}">
+                        </option>
+                    </select>
+                </div>
+
+                <div class="campo-filtro">
+                    <label for="cliente">
+                        Cliente
+                    </label>
+
+                    <input
+                        id="cliente"
+                        type="search"
+                        name="cliente"
+                        th:value="${clientePesquisado}"
+                        placeholder="Pesquisar nome">
+                </div>
+
+                <div class="acoes-filtros-financeiro">
+
+                    <button
+                        class="botao botao-pesquisar"
+                        type="submit">
+                        Gerar resumo
+                    </button>
+
+                    <a
+                        class="botao botao-limpar"
+                        th:href="@{/financeiro}">
+                        Limpar
+                    </a>
+
+                </div>
+
+            </form>
+
+        </section>
+
+        <section class="indicadores indicadores-financeiro">
+
+            <article class="cartao">
+                <span>Serviços executados</span>
+
+                <strong
+                    th:text="${resumo.quantidadeServicos}">
+                    0
+                </strong>
+            </article>
+
+            <article class="cartao cartao-entrada">
+                <span>Entradas</span>
+
+                <strong
+                    th:text="${'R$ ' + #numbers.formatDecimal(
+                        resumo.totalEntradas,
+                        1,
+                        'POINT',
+                        2,
+                        'COMMA'
+                    )}">
+                    R$ 0,00
+                </strong>
+            </article>
+
+            <article class="cartao cartao-saida">
+                <span>Saídas</span>
+
+                <strong
+                    th:text="${'R$ ' + #numbers.formatDecimal(
+                        resumo.totalSaidas,
+                        1,
+                        'POINT',
+                        2,
+                        'COMMA'
+                    )}">
+                    R$ 0,00
+                </strong>
+            </article>
+
+            <article
+                class="cartao"
+                th:classappend="${resumo.lucro.signum() >= 0}
+                    ? ' cartao-lucro'
+                    : ' cartao-prejuizo'">
+
+                <span>Resultado</span>
+
+                <strong
+                    th:text="${'R$ ' + #numbers.formatDecimal(
+                        resumo.lucro,
+                        1,
+                        'POINT',
+                        2,
+                        'COMMA'
+                    )}">
+                    R$ 0,00
+                </strong>
+            </article>
+
+        </section>
+
+        <section class="painel">
+
+            <div class="cabecalho-extrato">
+
+                <div>
+                    <h3>Extrato de serviços executados</h3>
+
+                    <p>
+                        Período:
+                        <strong
+                            th:text="${#temporals.format(
+                                dataInicial,
+                                'dd/MM/yyyy'
+                            )}">
+                        </strong>
+
+                        até
+
+                        <strong
+                            th:text="${#temporals.format(
+                                dataFinal,
+                                'dd/MM/yyyy'
+                            )}">
+                        </strong>
+                    </p>
+                </div>
+
+                <div class="acoes-relatorio">
+
+                    <a
+                        class="botao botao-secundario"
+                        target="_blank"
+                        th:href="@{/financeiro/imprimir(
+                            dataInicial=${dataInicial},
+                            dataFinal=${dataFinal},
+                            tipo=${tipoSelecionado},
+                            cliente=${clientePesquisado}
+                        )}">
+                        Imprimir
+                    </a>
+
+                   <a
+                        class="botao botao-salvar"
+                        download
+                        th:href="@{/financeiro/pdf(
+                            dataInicial=${dataInicial},
+                            dataFinal=${dataFinal},
+                            tipo=${tipoSelecionado},
+                            cliente=${clientePesquisado}
+                        )}">
+                        Baixar PDF
+                    </a>
+
+                </div>
+
+            </div>
+
+            <div
+                class="estado-vazio"
+                th:if="${#lists.isEmpty(resumo.servicos)}">
+
+                <p>
+                    Nenhum serviço concluído foi encontrado
+                    no período informado.
+                </p>
+
+            </div>
+
+            <div
+                class="tabela-responsiva"
+                th:unless="${#lists.isEmpty(resumo.servicos)}">
+
+                <table class="tabela tabela-financeiro">
+
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>ID</th>
+                            <th>Cliente</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                            <th>Entrada</th>
+                            <th>Saída</th>
+                            <th>Lucro</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        <tr th:each="servico : ${resumo.servicos}">
+
+                            <td
+                                th:text="${#temporals.format(
+                                    servico.dataInstalacao,
+                                    'dd/MM/yyyy'
+                                )}">
+                            </td>
+
+                            <td th:text="${servico.idServico}">
+                            </td>
+
+                            <td
+                                th:text="${servico.cliente != null
+                                    ? servico.cliente.nome
+                                    : '-'}">
+                            </td>
+
+                            <td
+                                th:text="${servico.tipoDeServico != null
+                                    ? servico.tipoDeServico.tipo
+                                    : '-'}">
+                            </td>
+
+                            <td class="coluna-descricao">
+                                <span
+                                    class="descricao-resumida"
+                                    th:text="${servico.descricao != null
+                                        and !servico.descricao.isBlank()
+                                        ? servico.descricao
+                                        : '-'}">
+                                </span>
+                            </td>
+
+                            <td class="valor-entrada">
+                                <span
+                                    th:if="${servico.valorCobrado != null}"
+                                    th:text="${'R$ '
+                                        + #numbers.formatDecimal(
+                                            servico.valorCobrado,
+                                            1,
+                                            'POINT',
+                                            2,
+                                            'COMMA'
+                                        )}">
+                                </span>
+
+                                <span
+                                    th:unless="${servico.valorCobrado != null}">
+                                    Não informado
+                                </span>
+                            </td>
+
+                            <td class="valor-saida">
+                                <span
+                                    th:if="${servico.valorCusto != null}"
+                                    th:text="${'R$ '
+                                        + #numbers.formatDecimal(
+                                            servico.valorCusto,
+                                            1,
+                                            'POINT',
+                                            2,
+                                            'COMMA'
+                                        )}">
+                                </span>
+
+                                <span
+                                    th:unless="${servico.valorCusto != null}">
+                                    Não informado
+                                </span>
+                            </td>
+
+                            <td class="valor-lucro">
+                                <span
+                                    th:with="
+                                        entrada=${servico.valorCobrado != null
+                                            ? servico.valorCobrado
+                                            : T(java.math.BigDecimal).ZERO},
+                                        saida=${servico.valorCusto != null
+                                            ? servico.valorCusto
+                                            : T(java.math.BigDecimal).ZERO},
+                                        lucroServico=${entrada.subtract(saida)}
+                                    "
+                                    th:text="${'R$ '
+                                        + #numbers.formatDecimal(
+                                            lucroServico,
+                                            1,
+                                            'POINT',
+                                            2,
+                                            'COMMA'
+                                        )}">
+                                </span>
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</body>
+
+</html>

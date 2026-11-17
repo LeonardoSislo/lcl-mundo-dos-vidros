@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>Impressão do resumo financeiro</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: #eef2f7;
+            color: #172033;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .acoes-impressao {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            padding: 14px 24px;
+            background: #172033;
+        }
+
+        .botao {
+            display: inline-block;
+            padding: 11px 18px;
+            border: 0;
+            border-radius: 8px;
+            background: #35c2c1;
+            color: #10202a;
+            font-size: 14px;
+            font-weight: bold;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .botao-secundario {
+            background: #e2e8f0;
+            color: #334155;
+        }
+
+        .relatorio {
+            width: min(1200px, calc(100% - 40px));
+            margin: 24px auto;
+            padding: 28px;
+            background: #ffffff;
+            box-shadow: 0 8px 25px rgba(15, 23, 42, 0.10);
+        }
+
+        .cabecalho-relatorio {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #35c2c1;
+        }
+
+        .marca {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .marca img {
+            width: 90px;
+            height: 90px;
+            object-fit: contain;
+        }
+
+        .marca h1 {
+            margin: 0;
+            font-size: 25px;
+        }
+
+        .marca p {
+            margin: 6px 0 0;
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .emissao {
+            color: #64748b;
+            font-size: 12px;
+            text-align: right;
+        }
+
+        .filtros-aplicados {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .filtro {
+            padding: 12px;
+            border: 1px solid #dce3ec;
+            border-radius: 8px;
+        }
+
+        .filtro span {
+            display: block;
+            margin-bottom: 5px;
+            color: #64748b;
+            font-size: 11px;
+            text-transform: uppercase;
+        }
+
+        .filtro strong {
+            font-size: 13px;
+        }
+
+        .totais {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin: 22px 0;
+        }
+
+        .total {
+            padding: 16px;
+            border: 1px solid #dce3ec;
+            border-radius: 9px;
+            background: #f8fafc;
+        }
+
+        .total span {
+            display: block;
+            margin-bottom: 8px;
+            color: #64748b;
+            font-size: 12px;
+        }
+
+        .total strong {
+            font-size: 19px;
+        }
+
+        .entrada {
+            color: #166534;
+        }
+
+        .saida,
+        .prejuizo {
+            color: #b91c1c;
+        }
+
+        .lucro {
+            color: #167979;
+        }
+
+        h2 {
+            margin: 24px 0 12px;
+            font-size: 18px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+
+        th,
+        td {
+            padding: 9px 7px;
+            border-bottom: 1px solid #dce3ec;
+            vertical-align: middle;
+            font-size: 10px;
+        }
+
+        th {
+            background: #f1f5f9;
+            color: #334155;
+            text-align: left;
+            text-transform: uppercase;
+        }
+
+        .col-data {
+            width: 10%;
+        }
+
+        .col-id {
+            width: 5%;
+            text-align: center;
+        }
+
+        .col-cliente {
+            width: 17%;
+        }
+
+        .col-tipo {
+            width: 13%;
+        }
+
+        .col-descricao {
+            width: 25%;
+            overflow-wrap: anywhere;
+        }
+
+        .col-valor {
+            width: 10%;
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .estado-vazio {
+            margin-top: 20px;
+            padding: 30px;
+            border: 1px dashed #cbd5e1;
+            text-align: center;
+            color: #64748b;
+        }
+
+        .rodape-relatorio {
+            margin-top: 18px;
+            padding-top: 12px;
+            border-top: 1px solid #dce3ec;
+            color: #64748b;
+            font-size: 10px;
+            text-align: center;
+        }
+
+        @page {
+            size: A4 landscape;
+            margin: 12mm;
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+
+            .nao-imprimir {
+                display: none !important;
+            }
+
+            .relatorio {
+                width: 100%;
+                margin: 0;
+                padding: 0;
+                box-shadow: none;
+            }
+
+            thead {
+                display: table-header-group;
+            }
+
+            tr {
+                page-break-inside: avoid;
+            }
+
+            .cabecalho-relatorio,
+            .totais,
+            .filtros-aplicados {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="acoes-impressao nao-imprimir">
+
+        <a
+            class="botao botao-secundario"
+            th:href="@{/financeiro(
+                dataInicial=${dataInicial},
+                dataFinal=${dataFinal},
+                cliente=${clientePesquisado}
+            )}">
+            Voltar
+        </a>
+
+        <button
+            class="botao"
+            type="button"
+            onclick="window.print()">
+            Imprimir relatório
+        </button>
+
+    </div>
+
+    <main class="relatorio">
+
+        <header class="cabecalho-relatorio">
+
+            <div class="marca">
+
+                <img
+                    th:src="@{/img/logo-lcl.png}"
+                    alt="Logo LCL Mundo dos Vidros">
+
+                <div>
+                    <h1>LCL Mundo dos Vidros</h1>
+
+                    <p>
+                        Resumo financeiro de serviços executados
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="emissao">
+                Emitido em
+                <strong
+                    th:text="${#temporals.format(
+                        emitidoEm,
+                        'dd/MM/yyyy HH:mm'
+                    )}">
+                </strong>
+            </div>
+
+        </header>
+
+        <section class="filtros-aplicados">
+
+            <div class="filtro">
+                <span>Data inicial</span>
+
+                <strong
+                    th:text="${#temporals.format(
+                        dataInicial,
+                        'dd/MM/yyyy'
+                    )}">
+                </strong>
+            </div>
+
+            <div class="filtro">
+                <span>Data final</span>
+
+                <strong
+                    th:text="${#temporals.format(
+                        dataFinal,
+                        'dd/MM/yyyy'
+                    )}">
+                </strong>
+            </div>
+
+            <div class="filtro">
+                <span>Tipo de serviço</span>
+
+                <strong th:text="${tipoSelecionadoNome}">
+                    Todos os tipos
+                </strong>
+            </div>
+
+            <div class="filtro">
+                <span>Cliente</span>
+
+                <strong
+                    th:text="${clientePesquisado != null
+                        and !clientePesquisado.isBlank()
+                        ? clientePesquisado
+                        : 'Todos os clientes'}">
+                    Todos os clientes
+                </strong>
+            </div>
+
+        </section>
+
+        <section class="totais">
+
+            <article class="total">
+                <span>Serviços executados</span>
+
+                <strong
+                    th:text="${resumo.quantidadeServicos}">
+                    0
+                </strong>
+            </article>
+
+            <article class="total">
+                <span>Total de entradas</span>
+
+                <strong
+                    class="entrada"
+                    th:text="${'R$ ' + #numbers.formatDecimal(
+                        resumo.totalEntradas,
+                        1,
+                        'POINT',
+                        2,
+                        'COMMA'
+                    )}">
+                    R$ 0,00
+                </strong>
+            </article>
+
+            <article class="total">
+                <span>Total de saídas</span>
+
+                <strong
+                    class="saida"
+                    th:text="${'R$ ' + #numbers.formatDecimal(
+                        resumo.totalSaidas,
+                        1,
+                        'POINT',
+                        2,
+                        'COMMA'
+                    )}">
+                    R$ 0,00
+                </strong>
+            </article>
+
+            <article class="total">
+                <span>Lucro / prejuízo</span>
+
+                <strong
+                    th:class="${resumo.lucro.signum() >= 0}
+                        ? 'lucro'
+                        : 'prejuizo'"
+                    th:text="${'R$ ' + #numbers.formatDecimal(
+                        resumo.lucro,
+                        1,
+                        'POINT',
+                        2,
+                        'COMMA'
+                    )}">
+                    R$ 0,00
+                </strong>
+            </article>
+
+        </section>
+
+        <h2>Extrato financeiro</h2>
+
+        <div
+            class="estado-vazio"
+            th:if="${#lists.isEmpty(resumo.servicos)}">
+
+            Nenhum serviço concluído foi encontrado
+            no período informado.
+
+        </div>
+
+        <table
+            th:unless="${#lists.isEmpty(resumo.servicos)}">
+
+            <thead>
+                <tr>
+                    <th class="col-data">Data</th>
+                    <th class="col-id">ID</th>
+                    <th class="col-cliente">Cliente</th>
+                    <th class="col-tipo">Tipo</th>
+                    <th class="col-descricao">Descrição</th>
+                    <th class="col-valor">Entrada</th>
+                    <th class="col-valor">Saída</th>
+                    <th class="col-valor">Lucro</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                <tr th:each="servico : ${resumo.servicos}">
+
+                    <td
+                        class="col-data"
+                        th:text="${#temporals.format(
+                            servico.dataInstalacao,
+                            'dd/MM/yyyy'
+                        )}">
+                    </td>
+
+                    <td
+                        class="col-id"
+                        th:text="${servico.idServico}">
+                    </td>
+
+                    <td
+                        class="col-cliente"
+                        th:text="${servico.cliente != null
+                            ? servico.cliente.nome
+                            : '-'}">
+                    </td>
+
+                    <td
+                        class="col-tipo"
+                        th:text="${servico.tipoDeServico != null
+                            ? servico.tipoDeServico.tipo
+                            : '-'}">
+                    </td>
+
+                    <td
+                        class="col-descricao"
+                        th:text="${servico.descricao != null
+                            and !servico.descricao.isBlank()
+                            ? servico.descricao
+                            : '-'}">
+                    </td>
+
+                    <td class="col-valor entrada">
+                        <span
+                            th:text="${'R$ '
+                                + #numbers.formatDecimal(
+                                    servico.valorCobrado != null
+                                        ? servico.valorCobrado
+                                        : T(java.math.BigDecimal).ZERO,
+                                    1,
+                                    'POINT',
+                                    2,
+                                    'COMMA'
+                                )}">
+                        </span>
+                    </td>
+
+                    <td class="col-valor saida">
+                        <span
+                            th:text="${'R$ '
+                                + #numbers.formatDecimal(
+                                    servico.valorCusto != null
+                                        ? servico.valorCusto
+                                        : T(java.math.BigDecimal).ZERO,
+                                    1,
+                                    'POINT',
+                                    2,
+                                    'COMMA'
+                                )}">
+                        </span>
+                    </td>
+
+                    <td
+                        class="col-valor"
+                        th:with="
+                            entradaServico=${servico.valorCobrado != null
+                                ? servico.valorCobrado
+                                : T(java.math.BigDecimal).ZERO},
+                            saidaServico=${servico.valorCusto != null
+                                ? servico.valorCusto
+                                : T(java.math.BigDecimal).ZERO},
+                            resultadoServico=${entradaServico.subtract(
+                                saidaServico
+                            )}
+                        ">
+
+                        <span
+                            th:class="${resultadoServico.signum() >= 0}
+                                ? 'lucro'
+                                : 'prejuizo'"
+                            th:text="${'R$ '
+                                + #numbers.formatDecimal(
+                                    resultadoServico,
+                                    1,
+                                    'POINT',
+                                    2,
+                                    'COMMA'
+                                )}">
+                        </span>
+                    </td>
+
+                </tr>
+
+            </tbody>
+
+        </table>
+
+        <footer class="rodape-relatorio">
+            Relatório gerado pelo sistema LCL Mundo dos Vidros.
+        </footer>
+
+    </main>
+
+</body>
+
+</html>

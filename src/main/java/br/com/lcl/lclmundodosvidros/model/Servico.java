@@ -14,8 +14,10 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.DecimalMax;
 
 @Entity
 @Table(name = "servico")
@@ -40,10 +42,21 @@ public class Servico {
     @Column(name = "valor_custo", precision = 10, scale = 2)
     private BigDecimal valorCusto;
 
+    @DecimalMax(
+    value = "99999999.99",
+    message = "O valor de custo deve ser menor que R$ 100.000.000,00."
+    )
+
     @DecimalMin(
         value = "0.00",
         message = "O valor cobrado não pode ser negativo."
     )
+
+    @DecimalMax(
+    value = "99999999.99",
+    message = "O valor cobrado deve ser menor que R$ 100.000.000,00."
+    )
+    
     @Column(name = "valor_cobrado", precision = 10, scale = 2)
     private BigDecimal valorCobrado;
 
