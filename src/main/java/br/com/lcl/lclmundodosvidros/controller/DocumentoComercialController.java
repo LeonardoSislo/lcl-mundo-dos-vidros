@@ -63,54 +63,55 @@ public class DocumentoComercialController {
     }
 
     @PostMapping("/documentos/salvar")
-    public String salvarDocumento(
-            @Valid DocumentoComercial documento,
-            BindingResult resultado,
-            Model model,
-            RedirectAttributes redirectAttributes) {
+        public String salvarDocumento(
+                @Valid DocumentoComercial documento,
+                BindingResult resultado,
+                Model model,
+                RedirectAttributes redirectAttributes) {
 
-        if (resultado.hasErrors()) {
-            carregarClientes(model);
+            if (resultado.hasErrors()) {
+                carregarClientes(model);
 
-            return "documentos/formulario";
-        }
+                return "documentos/formulario";
+            }
 
-        try {
-            DocumentoComercial documentoSalvo =
-                    documentoService.salvar(documento);
+            try {
+                DocumentoComercial documentoSalvo =
+                        documentoService.salvar(documento);
 
-            redirectAttributes.addFlashAttribute(
-                    "mensagem",
-                    documentoSalvo.getTipo().getDescricao()
-                            + " salvo com sucesso."
-            );
+                redirectAttributes.addFlashAttribute(
+                        "mensagem",
+                        documentoSalvo.getTipo().getDescricao()
+                                + " salvo com sucesso."
+                );
 
-            return "redirect:/documentos/"
-                    + documentoSalvo.getIdDocumento()
-                    + "/consultar";
+                return "redirect:/documentos/"
+                        + documentoSalvo.getIdDocumento()
+                        + "/consultar";
 
-        } catch (IllegalArgumentException exception) {
-            model.addAttribute(
-                    "mensagemErro",
-                    exception.getMessage()
-            );
+            } catch (IllegalArgumentException exception) {
+                model.addAttribute(
+                        "mensagemErro",
+                        exception.getMessage()
+                );
 
-            carregarClientes(model);
+                carregarClientes(model);
 
-            return "documentos/formulario";
+                return "documentos/formulario";
 
-        } catch (DataIntegrityViolationException exception) {
-            model.addAttribute(
-                    "mensagemErro",
-                    "Não foi possível salvar o documento. "
-                            + "Confira se o número já existe."
-            );
+            } catch (DataIntegrityViolationException exception) {
+                model.addAttribute(
+                        "mensagemErro",
+                        "Não foi possível salvar o documento. "
+                                + "Verifique o número e os dados informados."
+                );
 
-            carregarClientes(model);
+                carregarClientes(model);
 
-            return "documentos/formulario";
-        }
+                return "documentos/formulario";
+            }
     }
+
 
     @GetMapping("/documentos/{id}/consultar")
     public String consultarDocumento(
@@ -136,10 +137,62 @@ public class DocumentoComercialController {
         }
     }
 
+    @GetMapping("/documentos/{id}/editar")
+        public String editarDocumento(
+                @PathVariable Integer id,
+                Model model,
+                RedirectAttributes redirectAttributes) {
+
+            try {
+                DocumentoComercial documento =
+                        documentoService.buscarComItens(id);
+
+                model.addAttribute("documento", documento);
+                carregarClientes(model);
+
+                return "documentos/formulario";
+
+            } catch (IllegalArgumentException exception) {
+                redirectAttributes.addFlashAttribute(
+                        "mensagemErro",
+                        exception.getMessage()
+                );
+
+                return "redirect:/documentos";
+            }
+        }
+
     private void carregarClientes(Model model) {
         model.addAttribute(
                 "clientes",
                 clienteRepository.findAllByOrderByNomeAsc()
         );
     }
+
+    @GetMapping("/documentos/{id}/imprimir")
+            public String imprimirDocumento(
+                    @PathVariable Integer id,
+                    Model model,
+                    RedirectAttributes redirectAttributes) {
+
+                try {
+                    DocumentoComercial documento =
+                            documentoService.buscarComItens(id);
+
+                    model.addAttribute(
+                            "documento",
+                            documento
+                    );
+
+                    return "documentos/impressao";
+
+                } catch (IllegalArgumentException exception) {
+                    redirectAttributes.addFlashAttribute(
+                            "mensagemErro",
+                            exception.getMessage()
+                    );
+
+                    return "redirect:/documentos";
+                }
+        }
 }

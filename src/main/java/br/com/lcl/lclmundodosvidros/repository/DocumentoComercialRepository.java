@@ -28,10 +28,13 @@ public interface DocumentoComercialRepository
             String prefixo
     );
 
-    @EntityGraph(attributePaths = {
-        "cliente",
-        "itens"
-    })
-    Optional<DocumentoComercial>
-            findByIdDocumento(Integer idDocumento);
+   @EntityGraph(attributePaths = {
+    "cliente",
+    "cliente.contato",
+    "itens"
+})
+Optional<DocumentoComercial> findByIdDocumento(
+        Integer idDocumento
+);
+
 }

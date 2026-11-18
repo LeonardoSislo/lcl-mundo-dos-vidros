@@ -3,105 +3,700 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Consultar documento</title>
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title
+        th:text="${documento.tipo.descricao
+            + ' ' + documento.numero
+            + ' | LCL Mundo dos Vidros'}">
+        Consultar documento
+    </title>
+
+    <link
+        rel="stylesheet"
+        th:href="@{/css/style.css}">
 </head>
 
 <body>
 
-    <h1 th:text="${documento.tipo.descricao}">
-        Documento
-    </h1>
+    <aside class="menu-lateral">
 
-    <p>
-        Número:
-        <strong th:text="${documento.numero}">
-        </strong>
-    </p>
+        <div class="logo">
+            <img
+                class="logo-imagem"
+                th:src="@{/img/logo-lcl.png}"
+                alt="Logo LCL Mundo dos Vidros">
+        </div>
 
-    <p>
-        Cliente:
-        <strong th:text="${documento.nomeCliente}">
-        </strong>
-    </p>
+        <nav>
+            <a th:href="@{/}">
+                Início
+            </a>
 
-    <p>
-        Total:
-        <strong
-            th:text="${'R$ '
-                + #numbers.formatDecimal(
-                    documento.valorTotal,
-                    1,
-                    'POINT',
-                    2,
-                    'COMMA'
+            <a th:href="@{/clientes}">
+                Clientes
+            </a>
+
+            <a th:href="@{/servicos}">
+                Serviços
+            </a>
+
+            <a
+                th:href="@{/documentos}"
+                class="ativo">
+                Documentos
+            </a>
+
+            <a th:href="@{/financeiro}">
+                Financeiro
+            </a>
+        </nav>
+
+    </aside>
+
+    <main class="conteudo">
+
+        <div
+            class="alerta-sucesso"
+            th:if="${mensagem}"
+            th:text="${mensagem}">
+        </div>
+
+        <div
+            class="alerta-erro"
+            th:if="${mensagemErro}"
+            th:text="${mensagemErro}">
+        </div>
+
+        <header class="cabecalho cabecalho-lista">
+
+            <div>
+                <div class="titulo-documento-consulta">
+
+                    <h2
+                        th:text="${documento.tipo.descricao}">
+                        Orçamento
+                    </h2>
+
+                    <span
+                        class="etiqueta-documento"
+                        th:classappend="${documento.tipo.name()
+                            == 'ORCAMENTO'}
+                            ? ' etiqueta-orcamento'
+                            : ' etiqueta-pedido'"
+                        th:text="${documento.tipo.descricao}">
+                        Orçamento
+                    </span>
+
+                </div>
+
+                <p>
+                    Documento
+                    <strong th:text="${documento.numero}">
+                        ORC-2026-0001
+                    </strong>
+                </p>
+            </div>
+
+            <div class="acoes-documento-consulta">
+
+                <a
+                    class="botao botao-secundario"
+                    th:href="@{/documentos}">
+                    Voltar
+                </a>
+
+                <!-- Será habilitado quando criarmos a edição -->
+                <a
+                    class="botao botao-editar-documento"
+                    th:href="@{/documentos/{id}/editar(
+                        id=${documento.idDocumento}
+                    )}">
+                    Editar
+                </a>
+
+                <!-- Será habilitado quando criarmos a impressão -->
+                <a
+                    class="botao botao-salvar"
+                    target="_blank"
+                    th:href="@{/documentos/{id}/imprimir(
+                        id=${documento.idDocumento}
+                    )}">
+                    Imprimir
+                </a>
+
+            </div>
+
+        </header>
+
+        <!-- Resumo -->
+
+        <section class="painel">
+
+            <div class="cabecalho-resumo-documento">
+
+                <div>
+                    <span>Número</span>
+
+                    <strong th:text="${documento.numero}">
+                        ORC-2026-0001
+                    </strong>
+                </div>
+
+                <div>
+                    <span>Data de emissão</span>
+
+                    <strong
+                        th:text="${documento.dataEmissao != null
+                            ? #temporals.format(
+                                documento.dataEmissao,
+                                'dd/MM/yyyy'
+                              )
+                            : '-'}">
+                        -
+                    </strong>
+                </div>
+
+                <div>
+                    <span>Status</span>
+
+                    <strong>
+                        <span
+                            class="status-documento"
+                            th:classappend="${
+                                documento.status == 'Aprovado'
+                                or documento.status == 'Concluído'
+                                ? ' status-documento-sucesso'
+                                : (
+                                    documento.status == 'Recusado'
+                                    or documento.status == 'Cancelado'
+                                    or documento.status == 'Expirado'
+                                    ? ' status-documento-erro'
+                                    : (
+                                        documento.status == 'Enviado'
+                                        or documento.status == 'Em produção'
+                                        or documento.status
+                                            == 'Pronto para instalação'
+                                        ? ' status-documento-andamento'
+                                        : ' status-documento-neutro'
+                                    )
+                                )
+                            }"
+                            th:text="${documento.status}">
+                            Rascunho
+                        </span>
+                    </strong>
+
+                </div>
+
+                <div>
+                    <span>Valor total</span>
+
+                    <strong
+                        class="valor-total-destaque"
+                        th:text="${'R$ '
+                            + #numbers.formatDecimal(
+                                documento.valorTotal,
+                                1,
+                                'POINT',
+                                2,
+                                'COMMA'
+                            )}">
+                        R$ 0,00
+                    </strong>
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- Cliente -->
+
+        <section class="painel">
+
+            <div class="titulo-secao-documento">
+
+                <div>
+                    <h3>Cliente e endereço da obra</h3>
+
+                    <p>
+                        Dados utilizados na emissão deste documento.
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="grade-detalhes-documento">
+
+                <div class="item-detalhe-documento item-detalhe-duplo">
+
+                    <span>Contratante</span>
+
+                    <strong
+                        th:text="${documento.nomeCliente != null
+                            and !documento.nomeCliente.isBlank()
+                            ? documento.nomeCliente
+                            : '-'}">
+                        Cliente
+                    </strong>
+
+                    <small
+                        th:if="${documento.cliente != null}"
+                        th:text="${'Cliente cadastrado: ID '
+                            + documento.cliente.idCliente}">
+                        ID
+                    </small>
+
+                </div>
+
+                <div class="item-detalhe-documento">
+
+                    <span>CPF/CNPJ</span>
+
+                    <strong
+                        th:text="${documento.cpfCnpj != null
+                            and !documento.cpfCnpj.isBlank()
+                            ? documento.cpfCnpj
+                            : '-'}">
+                        -
+                    </strong>
+
+                </div>
+
+                <div class="item-detalhe-documento">
+
+                    <span>Telefone</span>
+
+                    <strong
+                        th:text="${documento.telefone != null
+                            and !documento.telefone.isBlank()
+                            ? documento.telefone
+                            : '-'}">
+                        -
+                    </strong>
+
+                </div>
+
+                <div class="item-detalhe-documento item-detalhe-duplo">
+
+                    <span>E-mail</span>
+
+                    <strong
+                        th:text="${documento.email != null
+                            and !documento.email.isBlank()
+                            ? documento.email
+                            : '-'}">
+                        -
+                    </strong>
+
+                </div>
+
+                <div class="item-detalhe-documento item-detalhe-duplo">
+
+                    <span>Endereço da obra</span>
+
+                    <strong
+                        th:text="${documento.enderecoObra != null
+                            and !documento.enderecoObra.isBlank()
+                            ? documento.enderecoObra
+                            : '-'}">
+                        -
+                    </strong>
+
+                </div>
+
+                <div class="item-detalhe-documento">
+
+                    <span>Bairro</span>
+
+                    <strong
+                        th:text="${documento.bairroObra != null
+                            and !documento.bairroObra.isBlank()
+                            ? documento.bairroObra
+                            : '-'}">
+                        -
+                    </strong>
+
+                </div>
+
+                <div class="item-detalhe-documento">
+
+                    <span>Cidade</span>
+
+                    <strong
+                        th:text="${documento.cidadeObra != null
+                            and !documento.cidadeObra.isBlank()
+                            ? documento.cidadeObra
+                            : '-'}">
+                        -
+                    </strong>
+
+                </div>
+
+                <div class="item-detalhe-documento">
+
+                    <span>Estado</span>
+
+                    <strong
+                        th:text="${documento.estadoObra != null
+                            and !documento.estadoObra.isBlank()
+                            ? documento.estadoObra
+                            : '-'}">
+                        -
+                    </strong>
+
+                </div>
+
+                <div class="item-detalhe-documento">
+
+                    <span>CEP</span>
+
+                    <strong
+                        th:text="${documento.cepObra != null
+                            and !documento.cepObra.isBlank()
+                            ? documento.cepObra
+                            : '-'}">
+                        -
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- Itens -->
+
+        <section class="painel">
+
+            <div class="titulo-secao-documento">
+
+                <div>
+                    <h3>Itens do documento</h3>
+
+                    <p
+                        th:text="${#lists.size(documento.itens) == 1
+                            ? '1 item cadastrado.'
+                            : #lists.size(documento.itens)
+                                + ' itens cadastrados.'}">
+                        Itens cadastrados
+                    </p>
+                </div>
+
+            </div>
+
+            <div
+                class="estado-vazio"
+                th:if="${#lists.isEmpty(documento.itens)}">
+
+                <p>Nenhum item cadastrado.</p>
+
+            </div>
+
+            <div
+                class="tabela-responsiva"
+                th:unless="${#lists.isEmpty(documento.itens)}">
+
+                <table class="tabela tabela-itens-consulta">
+
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Qtd.</th>
+                            <th>Descrição</th>
+                            <th>Medidas</th>
+                            <th>Unitário</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        <tr
+                            th:each="item, estado
+                                : ${documento.itens}">
+
+                            <td th:text="${estado.index + 1}">
+                                1
+                            </td>
+
+                            <td
+                                th:text="${#numbers.formatDecimal(
+                                    item.quantidade,
+                                    1,
+                                    'POINT',
+                                    2,
+                                    'COMMA'
+                                )}">
+                                1,00
+                            </td>
+
+                            <td class="descricao-item-consulta">
+
+                                <strong
+                                    th:text="${item.descricao}">
+                                    Produto ou serviço
+                                </strong>
+
+                            </td>
+
+                            <td>
+                                <span
+                                    th:if="${item.largura != null
+                                        or item.altura != null}">
+
+                                    <span
+                                        th:text="${item.largura != null
+                                            ? #numbers.formatDecimal(
+                                                item.largura,
+                                                1,
+                                                'POINT',
+                                                2,
+                                                'COMMA'
+                                              )
+                                            : '-'}">
+                                    </span>
+
+                                    x
+
+                                    <span
+                                        th:text="${item.altura != null
+                                            ? #numbers.formatDecimal(
+                                                item.altura,
+                                                1,
+                                                'POINT',
+                                                2,
+                                                'COMMA'
+                                              )
+                                            : '-'}">
+                                    </span>
+
+                                    <span
+                                        th:text="${item.unidadeMedida != null
+                                            ? item.unidadeMedida
+                                            : ''}">
+                                    </span>
+
+                                </span>
+
+                                <span
+                                    th:unless="${item.largura != null
+                                        or item.altura != null}">
+                                    -
+                                </span>
+                            </td>
+
+                            <td
+                                class="valor-item-consulta"
+                                th:text="${'R$ '
+                                    + #numbers.formatDecimal(
+                                        item.valorUnitario,
+                                        1,
+                                        'POINT',
+                                        2,
+                                        'COMMA'
+                                    )}">
+                                R$ 0,00
+                            </td>
+
+                            <td
+                                class="valor-item-consulta"
+                                th:text="${'R$ '
+                                    + #numbers.formatDecimal(
+                                        item.valorTotal,
+                                        1,
+                                        'POINT',
+                                        2,
+                                        'COMMA'
+                                    )}">
+                                R$ 0,00
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+        <!-- Totais e condições -->
+
+        <section class="painel">
+
+            <div class="grade-consulta-comercial">
+
+                <div class="condicoes-consulta">
+
+                    <div class="bloco-texto-documento">
+
+                        <h3>Condição de pagamento</h3>
+
+                        <p
+                            th:text="${documento.condicaoPagamento != null
+                                and !documento.condicaoPagamento.isBlank()
+                                ? documento.condicaoPagamento
+                                : 'Não informada.'}">
+                        </p>
+
+                    </div>
+
+                    <div class="bloco-texto-documento">
+
+                        <h3>Prazo de entrega e instalação</h3>
+
+                        <p
+                            th:text="${documento.prazoEntrega != null
+                                and !documento.prazoEntrega.isBlank()
+                                ? documento.prazoEntrega
+                                : 'Não informado.'}">
+                        </p>
+
+                    </div>
+
+                    <div
+                        class="bloco-texto-documento"
+                        th:if="${documento.observacoes != null
+                            and !documento.observacoes.isBlank()}">
+
+                        <h3>Observações</h3>
+
+                        <p th:text="${documento.observacoes}">
+                        </p>
+
+                    </div>
+
+                    <div class="bloco-texto-documento">
+
+                        <h3>Condições gerais</h3>
+
+                        <p
+                            th:text="${documento.condicoesGerais != null
+                                and !documento.condicoesGerais.isBlank()
+                                ? documento.condicoesGerais
+                                : 'Nenhuma condição geral informada.'}">
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <aside class="resumo-valores-consulta">
+
+                    <h3>Resumo dos valores</h3>
+
+                    <div class="linha-total-consulta">
+
+                        <span>Subtotal</span>
+
+                        <strong
+                            th:text="${'R$ '
+                                + #numbers.formatDecimal(
+                                    documento.subtotal,
+                                    1,
+                                    'POINT',
+                                    2,
+                                    'COMMA'
+                                )}">
+                            R$ 0,00
+                        </strong>
+
+                    </div>
+
+                    <div class="linha-total-consulta">
+
+                        <span>Desconto</span>
+
+                        <strong
+                            class="valor-desconto"
+                            th:text="${'- R$ '
+                                + #numbers.formatDecimal(
+                                    documento.desconto,
+                                    1,
+                                    'POINT',
+                                    2,
+                                    'COMMA'
+                                )}">
+                            - R$ 0,00
+                        </strong>
+
+                    </div>
+
+                    <div class="linha-total-consulta">
+
+                        <span>Acréscimo</span>
+
+                        <strong
+                            th:text="${'+ R$ '
+                                + #numbers.formatDecimal(
+                                    documento.acrescimo,
+                                    1,
+                                    'POINT',
+                                    2,
+                                    'COMMA'
+                                )}">
+                            + R$ 0,00
+                        </strong>
+
+                    </div>
+
+                    <div class="linha-total-consulta total-consulta-final">
+
+                        <span>Valor total</span>
+
+                        <strong
+                            th:text="${'R$ '
+                                + #numbers.formatDecimal(
+                                    documento.valorTotal,
+                                    1,
+                                    'POINT',
+                                    2,
+                                    'COMMA'
+                                )}">
+                            R$ 0,00
+                        </strong>
+
+                    </div>
+
+                </aside>
+
+            </div>
+
+        </section>
+
+        <div class="acoes-finais-documento">
+
+            <a
+                class="botao botao-secundario"
+                th:href="@{/documentos}">
+                Voltar
+            </a>
+
+            <a
+                class="botao botao-editar-documento"
+                th:href="@{/documentos/{id}/editar(
+                    id=${documento.idDocumento}
                 )}">
-        </strong>
-    </p>
+                Editar documento
+            </a>
 
-    <h2>Itens</h2>
+            <a
+                class="botao botao-salvar"
+                target="_blank"
+                th:href="@{/documentos/{id}/imprimir(
+                    id=${documento.idDocumento}
+                )}">
+                Imprimir
+            </a>
 
-    <table>
-        <thead>
-            <tr>
-                <th>Qtd.</th>
-                <th>Descrição</th>
-                <th>Medidas</th>
-                <th>Unitário</th>
-                <th>Total</th>
-            </tr>
-        </thead>
+        </div>
 
-        <tbody>
-
-            <tr th:each="item : ${documento.itens}">
-
-                <td th:text="${item.quantidade}">
-                </td>
-
-                <td th:text="${item.descricao}">
-                </td>
-
-                <td
-                    th:text="${item.largura != null
-                        and item.altura != null
-                        ? item.largura
-                            + ' x '
-                            + item.altura
-                            + ' '
-                            + item.unidadeMedida
-                        : '-'}">
-                </td>
-
-                <td
-                    th:text="${'R$ '
-                        + #numbers.formatDecimal(
-                            item.valorUnitario,
-                            1,
-                            'POINT',
-                            2,
-                            'COMMA'
-                        )}">
-                </td>
-
-                <td
-                    th:text="${'R$ '
-                        + #numbers.formatDecimal(
-                            item.valorTotal,
-                            1,
-                            'POINT',
-                            2,
-                            'COMMA'
-                        )}">
-                </td>
-
-            </tr>
-
-        </tbody>
-    </table>
-
-    <a th:href="@{/documentos}">
-        Voltar
-    </a>
+    </main>
 
 </body>
 

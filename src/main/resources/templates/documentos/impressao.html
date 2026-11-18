@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title
+        th:text="${documento.tipo.descricao
+            + ' ' + documento.numero}">
+        Documento comercial
+    </title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background-color: #e5e7eb;
+            color: #111827;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .barra-acoes {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            padding: 14px 24px;
+            background-color: #172033;
+        }
+
+        .botao {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 42px;
+            padding: 10px 18px;
+            border: 0;
+            border-radius: 8px;
+            background-color: #35c2c1;
+            color: #10202a;
+            font-size: 14px;
+            font-weight: bold;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .botao-secundario {
+            background-color: #e2e8f0;
+            color: #334155;
+        }
+
+        .pagina {
+            width: 210mm;
+            min-height: 297mm;
+            margin: 20px auto;
+            padding: 12mm;
+            background-color: #ffffff;
+            box-shadow: 0 8px 28px rgba(15, 23, 42, 0.15);
+        }
+
+        .cabecalho-documento {
+            display: grid;
+            grid-template-columns: 38mm 1fr 48mm;
+            gap: 8mm;
+            align-items: center;
+            padding-bottom: 5mm;
+            border-bottom: 2px solid #35c2c1;
+        }
+
+        .logo-documento {
+            width: 34mm;
+            height: 34mm;
+            object-fit: contain;
+        }
+
+        .empresa-documento h1 {
+            margin: 0;
+            color: #172033;
+            font-size: 21px;
+        }
+
+        .empresa-documento p {
+            margin: 2mm 0 0;
+            color: #475569;
+            font-size: 10px;
+            line-height: 1.45;
+        }
+
+        .identificacao-documento {
+            text-align: right;
+        }
+
+        .identificacao-documento h2 {
+            margin: 0;
+            color: #167979;
+            font-size: 22px;
+            text-transform: uppercase;
+        }
+
+        .identificacao-documento strong {
+            display: block;
+            margin-top: 3mm;
+            font-size: 13px;
+        }
+
+        .identificacao-documento span {
+            display: block;
+            margin-top: 2mm;
+            color: #475569;
+            font-size: 10px;
+        }
+
+        .secao {
+            margin-top: 6mm;
+        }
+
+        .titulo-secao {
+            margin: 0 0 3mm;
+            padding: 2.5mm 3mm;
+            background-color: #e6fffe;
+            color: #115e59;
+            font-size: 11px;
+            text-transform: uppercase;
+        }
+
+        .grade-cliente {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            border: 1px solid #cbd5e1;
+        }
+
+        .campo-documento {
+            min-height: 15mm;
+            padding: 3mm;
+            border-right: 1px solid #cbd5e1;
+            border-bottom: 1px solid #cbd5e1;
+        }
+
+        .campo-documento:nth-child(even) {
+            border-right: 0;
+        }
+
+        .campo-documento-largo {
+            grid-column: 1 / -1;
+            border-right: 0;
+        }
+
+        .campo-documento span {
+            display: block;
+            margin-bottom: 1.5mm;
+            color: #64748b;
+            font-size: 8px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .campo-documento strong {
+            color: #172033;
+            font-size: 10px;
+            line-height: 1.4;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            display: table-header-group;
+        }
+
+        th,
+        td {
+            padding: 2.5mm 2mm;
+            border: 1px solid #94a3b8;
+            vertical-align: top;
+            font-size: 9px;
+        }
+
+        th {
+            background-color: #e6fffe;
+            color: #134e4a;
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        .col-ordem {
+            width: 6%;
+            text-align: center;
+        }
+
+        .col-qtd {
+            width: 8%;
+            text-align: center;
+        }
+
+        .col-descricao {
+            width: 37%;
+            overflow-wrap: anywhere;
+        }
+
+        .col-medidas {
+            width: 17%;
+            text-align: center;
+        }
+
+        .col-valor {
+            width: 16%;
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .resumo-valores {
+            width: 76mm;
+            margin-top: 4mm;
+            margin-left: auto;
+            border: 1px solid #94a3b8;
+        }
+
+        .linha-valor {
+            display: flex;
+            justify-content: space-between;
+            gap: 8mm;
+            padding: 2.5mm 3mm;
+            border-bottom: 1px solid #cbd5e1;
+            font-size: 10px;
+        }
+
+        .linha-valor:last-child {
+            border-bottom: 0;
+        }
+
+        .linha-valor-total {
+            background-color: #e6fffe;
+            color: #115e59;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .grade-condicoes {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4mm;
+        }
+
+        .bloco-condicao {
+            padding: 3.5mm;
+            border: 1px solid #cbd5e1;
+        }
+
+        .bloco-condicao h3 {
+            margin: 0 0 2mm;
+            color: #172033;
+            font-size: 10px;
+        }
+
+        .bloco-condicao p {
+            margin: 0;
+            color: #334155;
+            font-size: 9px;
+            line-height: 1.5;
+            white-space: pre-line;
+            overflow-wrap: anywhere;
+        }
+
+        .condicoes-gerais {
+            margin-top: 4mm;
+            padding: 4mm;
+            border: 1px solid #cbd5e1;
+        }
+
+        .condicoes-gerais {
+            page-break-inside: auto;
+        }
+
+        .condicoes-gerais p {
+            orphans: 3;
+            widows: 3;
+        }
+
+        .condicoes-gerais h3 {
+            margin: 0 0 2.5mm;
+            text-align: center;
+            font-size: 11px;
+            text-transform: uppercase;
+        }
+
+        .condicoes-gerais p {
+            margin: 0;
+            color: #334155;
+            font-size: 8.5px;
+            line-height: 1.45;
+            white-space: pre-line;
+        }
+
+        .rodape-documento {
+            margin-top: 7mm;
+            padding-top: 4mm;
+            border-top: 1px solid #94a3b8;
+            color: #334155;
+            font-size: 8.5px;
+            line-height: 1.5;
+            text-align: center;
+        }
+
+        .assinaturas {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18mm;
+            margin-top: 14mm;
+        }
+
+        .assinatura {
+            padding-top: 2mm;
+            border-top: 1px solid #172033;
+            font-size: 9px;
+            text-align: center;
+        }
+
+        .estado-vazio {
+            padding: 10mm;
+            border: 1px dashed #94a3b8;
+            color: #64748b;
+            font-size: 10px;
+            text-align: center;
+        }
+
+        @page {
+            size: A4 portrait;
+            margin: 8mm;
+        }
+
+        @media print {
+            body {
+                background-color: #ffffff;
+            }
+
+            .nao-imprimir {
+                display: none !important;
+            }
+
+            .pagina {
+                width: 100%;
+                min-height: 0;
+                margin: 0;
+                padding: 0;
+                box-shadow: none;
+            }
+
+            tr,
+            .bloco-condicao,
+            .resumo-valores {
+                page-break-inside: avoid;
+            }
+
+            .cabecalho-documento {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="barra-acoes nao-imprimir">
+
+        <a
+            class="botao botao-secundario"
+            th:href="@{/documentos/{id}/consultar(
+                id=${documento.idDocumento}
+            )}">
+            Voltar
+        </a>
+
+        <button
+            class="botao"
+            type="button"
+            onclick="window.print()">
+            Imprimir ou salvar como PDF
+        </button>
+
+    </div>
+
+    <main class="pagina">
+
+        <header class="cabecalho-documento">
+
+            <img
+                class="logo-documento"
+                th:src="@{/img/logo-lcl.png}"
+                alt="Logo LCL Mundo dos Vidros">
+
+            <div class="empresa-documento">
+
+                <h1>LCL Mundo dos Vidros</h1>
+
+                <p>
+                    CNPJ: 42.900.710/0001-18<br>
+                    Avenida Imirim, 357 - Imirim - São Paulo/SP<br>
+                    (11) 2208-8800 |
+                    (11) 2208-2228 |
+                    (11) 94766-9190
+                </p>
+
+            </div>
+
+            <div class="identificacao-documento">
+
+                <h2 th:text="${documento.tipo.descricao}">
+                    Orçamento
+                </h2>
+
+                <strong th:text="${documento.numero}">
+                    ORC-2026-0001
+                </strong>
+
+                <span
+                    th:text="${documento.dataEmissao != null
+                        ? 'Emissão: '
+                            + #temporals.format(
+                                documento.dataEmissao,
+                                'dd/MM/yyyy'
+                              )
+                        : 'Emissão: -'}">
+                    Emissão
+                </span>
+
+                <span
+                    th:text="${'Status: ' + documento.status}">
+                    Status
+                </span>
+
+            </div>
+
+        </header>
+
+        <!-- Cliente -->
+
+        <section class="secao">
+
+            <h2 class="titulo-secao">
+                Dados do contratante
+            </h2>
+
+            <div class="grade-cliente">
+
+                <div class="campo-documento">
+
+                    <span>Contratante</span>
+
+                    <strong
+                        th:text="${documento.nomeCliente != null
+                            and !documento.nomeCliente.isBlank()
+                            ? documento.nomeCliente
+                            : '-'}">
+                    </strong>
+
+                </div>
+
+                <div class="campo-documento">
+
+                    <span>CPF/CNPJ</span>
+
+                    <strong
+                        th:text="${documento.cpfCnpj != null
+                            and !documento.cpfCnpj.isBlank()
+                            ? documento.cpfCnpj
+                            : '-'}">
+                    </strong>
+
+                </div>
+
+                <div class="campo-documento">
+
+                    <span>E-mail</span>
+
+                    <strong
+                        th:text="${documento.email != null
+                            and !documento.email.isBlank()
+                            ? documento.email
+                            : '-'}">
+                    </strong>
+
+                </div>
+
+                <div class="campo-documento">
+
+                    <span>Telefone</span>
+
+                    <strong
+                        th:text="${documento.telefone != null
+                            and !documento.telefone.isBlank()
+                            ? documento.telefone
+                            : '-'}">
+                    </strong>
+
+                </div>
+
+                <div class="campo-documento campo-documento-largo">
+
+                    <span>Endereço da obra</span>
+
+                    <strong>
+                        <span
+                            th:text="${documento.enderecoObra != null
+                                and !documento.enderecoObra.isBlank()
+                                ? documento.enderecoObra
+                                : '-'}">
+                        </span>
+
+                        <span
+                            th:if="${documento.bairroObra != null
+                                and !documento.bairroObra.isBlank()}"
+                            th:text="${' - '
+                                + documento.bairroObra}">
+                        </span>
+
+                        <span
+                            th:if="${documento.cidadeObra != null
+                                and !documento.cidadeObra.isBlank()}"
+                            th:text="${' - '
+                                + documento.cidadeObra}">
+                        </span>
+
+                        <span
+                            th:if="${documento.estadoObra != null
+                                and !documento.estadoObra.isBlank()}"
+                            th:text="${'/'
+                                + documento.estadoObra}">
+                        </span>
+
+                        <span
+                            th:if="${documento.cepObra != null
+                                and !documento.cepObra.isBlank()}"
+                            th:text="${' - CEP '
+                                + documento.cepObra}">
+                        </span>
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- Itens -->
+
+        <section class="secao">
+
+            <h2 class="titulo-secao">
+                Produtos e serviços
+            </h2>
+
+            <div
+                class="estado-vazio"
+                th:if="${#lists.isEmpty(documento.itens)}">
+
+                Nenhum item cadastrado.
+
+            </div>
+
+            <table
+                th:unless="${#lists.isEmpty(documento.itens)}">
+
+                <thead>
+                    <tr>
+                        <th class="col-ordem">#</th>
+                        <th class="col-qtd">Qtd.</th>
+                        <th class="col-descricao">Descrição</th>
+                        <th class="col-medidas">Medidas</th>
+                        <th class="col-valor">Unitário</th>
+                        <th class="col-valor">Total</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    <tr
+                        th:each="item, estado
+                            : ${documento.itens}">
+
+                        <td
+                            class="col-ordem"
+                            th:text="${estado.index + 1}">
+                            1
+                        </td>
+
+                        <td
+                            class="col-qtd"
+                            th:text="${#numbers.formatDecimal(
+                                item.quantidade,
+                                1,
+                                'POINT',
+                                2,
+                                'COMMA'
+                            )}">
+                            1,00
+                        </td>
+
+                        <td
+                            class="col-descricao"
+                            th:text="${item.descricao}">
+                            Descrição
+                        </td>
+
+                        <td class="col-medidas">
+
+                            <span
+                                th:if="${item.largura != null
+                                    or item.altura != null}">
+
+                                <span
+                                    th:text="${item.largura != null
+                                        ? #numbers.formatDecimal(
+                                            item.largura,
+                                            1,
+                                            'POINT',
+                                            2,
+                                            'COMMA'
+                                          )
+                                        : '-'}">
+                                </span>
+
+                                x
+
+                                <span
+                                    th:text="${item.altura != null
+                                        ? #numbers.formatDecimal(
+                                            item.altura,
+                                            1,
+                                            'POINT',
+                                            2,
+                                            'COMMA'
+                                          )
+                                        : '-'}">
+                                </span>
+
+                                <span
+                                    th:text="${item.unidadeMedida != null
+                                        ? item.unidadeMedida
+                                        : ''}">
+                                </span>
+
+                            </span>
+
+                            <span
+                                th:unless="${item.largura != null
+                                    or item.altura != null}">
+                                -
+                            </span>
+
+                        </td>
+
+                        <td
+                            class="col-valor"
+                            th:text="${'R$ '
+                                + #numbers.formatDecimal(
+                                    item.valorUnitario,
+                                    1,
+                                    'POINT',
+                                    2,
+                                    'COMMA'
+                                )}">
+                            R$ 0,00
+                        </td>
+
+                        <td
+                            class="col-valor"
+                            th:text="${'R$ '
+                                + #numbers.formatDecimal(
+                                    item.valorTotal,
+                                    1,
+                                    'POINT',
+                                    2,
+                                    'COMMA'
+                                )}">
+                            R$ 0,00
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+            <div class="resumo-valores">
+
+                <div class="linha-valor">
+
+                    <span>Subtotal</span>
+
+                    <strong
+                        th:text="${'R$ '
+                            + #numbers.formatDecimal(
+                                documento.subtotal,
+                                1,
+                                'POINT',
+                                2,
+                                'COMMA'
+                            )}">
+                        R$ 0,00
+                    </strong>
+
+                </div>
+
+                <div
+                    class="linha-valor"
+                    th:if="${documento.desconto != null
+                        and documento.desconto.signum() > 0}">
+
+                    <span>Desconto</span>
+
+                    <strong
+                        th:text="${'- R$ '
+                            + #numbers.formatDecimal(
+                                documento.desconto,
+                                1,
+                                'POINT',
+                                2,
+                                'COMMA'
+                            )}">
+                        - R$ 0,00
+                    </strong>
+
+                </div>
+
+                <div
+                    class="linha-valor"
+                    th:if="${documento.acrescimo != null
+                        and documento.acrescimo.signum() > 0}">
+
+                    <span>Acréscimo</span>
+
+                    <strong
+                        th:text="${'+ R$ '
+                            + #numbers.formatDecimal(
+                                documento.acrescimo,
+                                1,
+                                'POINT',
+                                2,
+                                'COMMA'
+                            )}">
+                        + R$ 0,00
+                    </strong>
+
+                </div>
+
+                <div class="linha-valor linha-valor-total">
+
+                    <span>Valor total</span>
+
+                    <strong
+                        th:text="${'R$ '
+                            + #numbers.formatDecimal(
+                                documento.valorTotal,
+                                1,
+                                'POINT',
+                                2,
+                                'COMMA'
+                            )}">
+                        R$ 0,00
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- Condições comerciais -->
+
+        <section class="secao">
+
+            <h2 class="titulo-secao">
+                Condições comerciais
+            </h2>
+
+            <div class="grade-condicoes">
+
+                <div class="bloco-condicao">
+
+                    <h3>Condição de pagamento</h3>
+
+                    <p
+                        th:text="${documento.condicaoPagamento != null
+                            and !documento.condicaoPagamento.isBlank()
+                            ? documento.condicaoPagamento
+                            : 'Não informada.'}">
+                    </p>
+
+                </div>
+
+                <div class="bloco-condicao">
+
+                    <h3>Prazo de entrega e instalação</h3>
+
+                    <p
+                        th:text="${documento.prazoEntrega != null
+                            and !documento.prazoEntrega.isBlank()
+                            ? documento.prazoEntrega
+                            : 'Não informado.'}">
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div
+                class="bloco-condicao"
+                style="margin-top: 4mm;"
+                th:if="${documento.observacoes != null
+                    and !documento.observacoes.isBlank()}">
+
+                <h3>Observações</h3>
+
+                <p th:text="${documento.observacoes}">
+                </p>
+
+            </div>
+
+            <div class="condicoes-gerais">
+
+                <h3>Condições gerais</h3>
+
+                <p
+                    th:text="${documento.condicoesGerais != null
+                        and !documento.condicoesGerais.isBlank()
+                        ? documento.condicoesGerais
+                        : 'Nenhuma condição geral informada.'}">
+                </p>
+
+            </div>
+
+        </section>
+
+        <section class="assinaturas">
+
+            <div class="assinatura">
+                LCL Mundo dos Vidros
+            </div>
+
+            <div class="assinatura">
+                Contratante
+            </div>
+
+        </section>
+
+        <footer class="rodape-documento">
+
+            LCL Mundo dos Vidros |
+            CNPJ 42.900.710/0001-18<br>
+
+            Avenida Imirim, 357 - Imirim - São Paulo/SP<br>
+
+            (11) 2208-8800 |
+            (11) 2208-2228 |
+            (11) 94766-9190
+
+        </footer>
+
+    </main>
+
+</body>
+
+</html>

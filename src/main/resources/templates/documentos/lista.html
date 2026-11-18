@@ -3,57 +3,595 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Documentos comerciais</title>
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>Documentos | LCL Mundo dos Vidros</title>
+
+    <link
+        rel="stylesheet"
+        th:href="@{/css/style.css}">
 </head>
 
 <body>
 
-    <h1>Documentos comerciais</h1>
+    <aside class="menu-lateral">
 
-    <p
-        th:if="${mensagem}"
-        th:text="${mensagem}">
-    </p>
+        <div class="logo">
+            <img
+                class="logo-imagem"
+                th:src="@{/img/logo-lcl.png}"
+                alt="Logo LCL Mundo dos Vidros">
+        </div>
 
-    <a th:href="@{/orcamentos/novo}">
-        Novo orçamento
-    </a>
-
-    <a th:href="@{/pedidos/novo}">
-        Novo pedido
-    </a>
-
-    <p th:if="${#lists.isEmpty(documentos)}">
-        Nenhum documento cadastrado.
-    </p>
-
-    <ul th:unless="${#lists.isEmpty(documentos)}">
-
-        <li th:each="documento : ${documentos}">
-
-            <span th:text="${documento.numero}">
-            </span>
-
-            -
-
-            <span th:text="${documento.tipo.descricao}">
-            </span>
-
-            -
-
-            <span th:text="${documento.nomeCliente}">
-            </span>
-
-            <a
-                th:href="@{/documentos/{id}/consultar(
-                    id=${documento.idDocumento}
-                )}">
-                Consultar
+        <nav>
+            <a th:href="@{/}">
+                Início
             </a>
 
-        </li>
+            <a th:href="@{/clientes}">
+                Clientes
+            </a>
 
-    </ul>
+            <a th:href="@{/servicos}">
+                Serviços
+            </a>
+
+            <a
+                th:href="@{/documentos}"
+                class="ativo">
+                Documentos
+            </a>
+
+            <a th:href="@{/financeiro}">
+                Financeiro
+            </a>
+        </nav>
+
+    </aside>
+
+    <main class="conteudo">
+
+        <div
+            class="alerta-sucesso"
+            th:if="${mensagem}"
+            th:text="${mensagem}">
+        </div>
+
+        <div
+            class="alerta-erro"
+            th:if="${mensagemErro}"
+            th:text="${mensagemErro}">
+        </div>
+
+        <header class="cabecalho cabecalho-lista">
+
+            <div>
+                <h2>Documentos comerciais</h2>
+
+                <p>
+                    Consulte e gerencie orçamentos e pedidos.
+                </p>
+            </div>
+
+            <div class="acoes-cabecalho-documentos">
+
+                <a
+                    class="botao botao-secundario"
+                    th:href="@{/pedidos/novo}">
+                    Novo pedido
+                </a>
+
+                <a
+                    class="botao"
+                    th:href="@{/orcamentos/novo}">
+                    Novo orçamento
+                </a>
+
+            </div>
+
+        </header>
+
+        <!-- Indicadores -->
+
+        <section class="indicadores indicadores-documentos">
+
+            <article class="cartao">
+
+                <span>Todos os documentos</span>
+
+                <strong
+                    th:text="${#lists.size(documentos)}">
+                    0
+                </strong>
+
+            </article>
+
+            <article class="cartao">
+
+                <span>Orçamentos</span>
+
+                <strong
+                    th:text="${#lists.size(
+                        documentos.?[
+                            tipo != null
+                            and tipo.name() == 'ORCAMENTO'
+                        ]
+                    )}">
+                    0
+                </strong>
+
+            </article>
+
+            <article class="cartao">
+
+                <span>Pedidos</span>
+
+                <strong
+                    th:text="${#lists.size(
+                        documentos.?[
+                            tipo != null
+                            and tipo.name() == 'PEDIDO'
+                        ]
+                    )}">
+                    0
+                </strong>
+
+            </article>
+
+        </section>
+
+        <!-- Filtros visuais locais -->
+
+        <section class="painel painel-filtros-documentos">
+
+            <div class="filtros-documentos">
+
+                <div class="campo-filtro">
+
+                    <label for="pesquisaDocumento">
+                        Pesquisar
+                    </label>
+
+                    <input
+                        id="pesquisaDocumento"
+                        type="search"
+                        placeholder="Número ou nome do cliente"
+                        autocomplete="off">
+
+                </div>
+
+                <div class="campo-filtro">
+
+                    <label for="filtroTipoDocumento">
+                        Tipo
+                    </label>
+
+                    <select id="filtroTipoDocumento">
+
+                        <option value="">
+                            Todos
+                        </option>
+
+                        <option value="orcamento">
+                            Orçamentos
+                        </option>
+
+                        <option value="pedido">
+                            Pedidos
+                        </option>
+
+                    </select>
+
+                </div>
+
+                <div class="campo-filtro">
+
+                    <label for="filtroStatusDocumento">
+                        Status
+                    </label>
+
+                    <select id="filtroStatusDocumento">
+
+                        <option value="">
+                            Todos os status
+                        </option>
+
+                        <option value="rascunho">
+                            Rascunho
+                        </option>
+
+                        <option value="enviado">
+                            Enviado
+                        </option>
+
+                        <option value="aprovado">
+                            Aprovado
+                        </option>
+
+                        <option value="recusado">
+                            Recusado
+                        </option>
+
+                        <option value="expirado">
+                            Expirado
+                        </option>
+
+                        <option value="aberto">
+                            Aberto
+                        </option>
+
+                        <option value="aguardando pagamento">
+                            Aguardando pagamento
+                        </option>
+
+                        <option value="em produção">
+                            Em produção
+                        </option>
+
+                        <option value="pronto para instalação">
+                            Pronto para instalação
+                        </option>
+
+                        <option value="concluído">
+                            Concluído
+                        </option>
+
+                        <option value="cancelado">
+                            Cancelado
+                        </option>
+
+                    </select>
+
+                </div>
+
+                <div class="acoes-filtro-documentos">
+
+                    <button
+                        class="botao botao-limpar"
+                        type="button"
+                        onclick="limparFiltrosDocumentos()">
+                        Limpar
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- Listagem -->
+
+        <section class="painel">
+
+            <div
+                id="estadoVazioDocumentos"
+                class="estado-vazio"
+                th:if="${#lists.isEmpty(documentos)}">
+
+                <p>
+                    Nenhum orçamento ou pedido cadastrado.
+                </p>
+
+                <a
+                    class="botao"
+                    th:href="@{/orcamentos/novo}">
+                    Criar primeiro orçamento
+                </a>
+
+            </div>
+
+            <div
+                id="nenhumResultadoDocumentos"
+                class="estado-vazio"
+                hidden>
+
+                <p>
+                    Nenhum documento corresponde aos filtros informados.
+                </p>
+
+                <button
+                    class="botao botao-secundario"
+                    type="button"
+                    onclick="limparFiltrosDocumentos()">
+                    Limpar filtros
+                </button>
+
+            </div>
+
+            <div
+                class="tabela-responsiva"
+                th:unless="${#lists.isEmpty(documentos)}">
+
+                <div class="resumo-resultados">
+
+                    <span id="quantidadeDocumentosExibidos">
+                    </span>
+
+                </div>
+
+                <table class="tabela tabela-documentos">
+
+                    <thead>
+                        <tr>
+                            <th>Número</th>
+                            <th>Tipo</th>
+                            <th>Data</th>
+                            <th>Cliente</th>
+                            <th>Status</th>
+                            <th>Valor total</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="corpoTabelaDocumentos">
+
+                        <tr
+                            class="linha-documento"
+                            th:each="documento : ${documentos}"
+                            th:attr="
+                                data-numero=${documento.numero},
+                                data-cliente=${documento.nomeCliente},
+                                data-tipo=${documento.tipo != null
+                                    ? documento.tipo.name()
+                                    : ''},
+                                data-status=${documento.status}">
+
+                            <td>
+
+                                <strong
+                                    th:text="${documento.numero}">
+                                    ORC-2026-0001
+                                </strong>
+
+                            </td>
+
+                            <td>
+
+                                <span
+                                    class="etiqueta-documento"
+                                    th:classappend="${documento.tipo != null
+                                        and documento.tipo.name()
+                                            == 'ORCAMENTO'}
+                                        ? ' etiqueta-orcamento'
+                                        : ' etiqueta-pedido'"
+                                    th:text="${documento.tipo != null
+                                        ? documento.tipo.descricao
+                                        : '-'}">
+                                    Orçamento
+                                </span>
+
+                            </td>
+
+                            <td
+                                th:text="${documento.dataEmissao != null
+                                    ? #temporals.format(
+                                        documento.dataEmissao,
+                                        'dd/MM/yyyy'
+                                      )
+                                    : '-'}">
+                                -
+                            </td>
+
+                            <td>
+
+                                <strong
+                                    th:text="${documento.nomeCliente != null
+                                        and !documento.nomeCliente.isBlank()
+                                        ? documento.nomeCliente
+                                        : '-'}">
+                                    Cliente
+                                </strong>
+
+                                <span
+                                    class="documento-cliente-id"
+                                    th:if="${documento.cliente != null}"
+                                    th:text="${'ID '
+                                        + documento.cliente.idCliente}">
+                                    ID
+                                </span>
+
+                            </td>
+
+                            <td>
+
+                                <span
+                                    class="status-documento"
+                                    th:classappend="${
+                                        documento.status == 'Aprovado'
+                                        or documento.status == 'Concluído'
+                                        ? ' status-documento-sucesso'
+                                        : (
+                                            documento.status == 'Recusado'
+                                            or documento.status == 'Cancelado'
+                                            or documento.status == 'Expirado'
+                                            ? ' status-documento-erro'
+                                            : (
+                                                documento.status == 'Enviado'
+                                                or documento.status == 'Em produção'
+                                                or documento.status
+                                                    == 'Pronto para instalação'
+                                                ? ' status-documento-andamento'
+                                                : ' status-documento-neutro'
+                                            )
+                                        )
+                                    }"
+                                    th:text="${documento.status}">
+                                    Rascunho
+                                </span>
+
+                            </td>
+
+                            <td
+                                class="valor-documento"
+                                th:text="${'R$ '
+                                    + #numbers.formatDecimal(
+                                        documento.valorTotal,
+                                        1,
+                                        'POINT',
+                                        2,
+                                        'COMMA'
+                                    )}">
+                                R$ 0,00
+                            </td>
+
+                            <td class="acoes-tabela">
+
+                                <div class="grupo-acoes">
+
+                                    <a
+                                        class="botao-consultar"
+                                        th:href="@{/documentos/{id}/consultar(
+                                            id=${documento.idDocumento}
+                                        )}">
+                                        Consultar
+                                    </a>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <script>
+        const campoPesquisaDocumento =
+            document.getElementById("pesquisaDocumento");
+
+        const campoTipoDocumento =
+            document.getElementById("filtroTipoDocumento");
+
+        const campoStatusDocumento =
+            document.getElementById("filtroStatusDocumento");
+
+        const linhasDocumento =
+            document.querySelectorAll(".linha-documento");
+
+        const estadoSemResultado =
+            document.getElementById(
+                "nenhumResultadoDocumentos"
+            );
+
+        const quantidadeExibida =
+            document.getElementById(
+                "quantidadeDocumentosExibidos"
+            );
+
+        function normalizarTexto(texto) {
+            return String(texto || "")
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .trim()
+                .toLowerCase();
+        }
+
+        function filtrarDocumentos() {
+            const pesquisa = normalizarTexto(
+                campoPesquisaDocumento.value
+            );
+
+            const tipo = normalizarTexto(
+                campoTipoDocumento.value
+            );
+
+            const status = normalizarTexto(
+                campoStatusDocumento.value
+            );
+
+            let quantidadeVisivel = 0;
+
+            linhasDocumento.forEach(function (linha) {
+                const numero = normalizarTexto(
+                    linha.dataset.numero
+                );
+
+                const cliente = normalizarTexto(
+                    linha.dataset.cliente
+                );
+
+                const tipoLinha = normalizarTexto(
+                    linha.dataset.tipo
+                );
+
+                const statusLinha = normalizarTexto(
+                    linha.dataset.status
+                );
+
+                const correspondePesquisa =
+                    !pesquisa
+                    || numero.includes(pesquisa)
+                    || cliente.includes(pesquisa);
+
+                const correspondeTipo =
+                    !tipo
+                    || tipoLinha === tipo;
+
+                const correspondeStatus =
+                    !status
+                    || statusLinha === status;
+
+                const visivel =
+                    correspondePesquisa
+                    && correspondeTipo
+                    && correspondeStatus;
+
+                linha.hidden = !visivel;
+
+                if (visivel) {
+                    quantidadeVisivel++;
+                }
+            });
+
+            if (estadoSemResultado) {
+                estadoSemResultado.hidden =
+                    quantidadeVisivel !== 0;
+            }
+
+            if (quantidadeExibida) {
+                quantidadeExibida.textContent =
+                    quantidadeVisivel === 1
+                        ? "1 documento encontrado"
+                        : quantidadeVisivel
+                            + " documentos encontrados";
+            }
+        }
+
+        function limparFiltrosDocumentos() {
+            campoPesquisaDocumento.value = "";
+            campoTipoDocumento.value = "";
+            campoStatusDocumento.value = "";
+
+            filtrarDocumentos();
+        }
+
+        campoPesquisaDocumento.addEventListener(
+            "input",
+            filtrarDocumentos
+        );
+
+        campoTipoDocumento.addEventListener(
+            "change",
+            filtrarDocumentos
+        );
+
+        campoStatusDocumento.addEventListener(
+            "change",
+            filtrarDocumentos
+        );
+
+        filtrarDocumentos();
+    </script>
 
 </body>
 
